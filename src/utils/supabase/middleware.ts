@@ -30,7 +30,38 @@ export async function updateSession(request: NextRequest) {
   // IMPORTANT: Avoid writing any logic between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with cross-browser cookies, e.g. Safari handling of SameSite strict.
-  await supabase.auth.getUser();
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch (error) {
+    console.error('Supabase auth error in middleware:', error);
+  }
+
+  const url = request.nextUrl.clone();
+  if (url.pathname.startsWith('/admin') && url.pathname !== '/admin/login') {
+    if (!user) {
+      url.pathname = '/admin/login';
+      return NextResponse.redirect(url);
+    } else {
+      try {
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        
+        if (!profile || profile.role !== 'superadmin') {
+          url.pathname = '/dashboard';
+          return NextResponse.redirect(url);
+        }
+      } catch (error) {
+        console.error('Supabase profile fetch error:', error);
+        url.pathname = '/dashboard';
+        return NextResponse.redirect(url);
+      }
+    }
+  }
 
   return supabaseResponse;
 }

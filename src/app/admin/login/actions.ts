@@ -13,13 +13,18 @@ export async function login(formData: FormData) {
 
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  if (error) {
-    return { error: error.message };
+    if (error) {
+      return { error: error.message };
+    }
+  } catch (err: any) {
+    console.error("Login fetch error:", err);
+    return { error: 'Database connection failed. Ensure Supabase keys are configured in your environment.' };
   }
 
   // After successful login, redirect to admin dashboard.

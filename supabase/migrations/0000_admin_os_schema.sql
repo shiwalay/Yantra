@@ -1,5 +1,7 @@
 -- Migration: 0000_admin_os_schema
 -- Description: Enterprise Admin OS Database Schema
+-- NOTE: role lookups in RLS use a SECURITY DEFINER helper (current_user_role)
+-- to avoid infinite recursion when a policy on user_profiles queries user_profiles.
 
 -- 1. Create ENUM for roles
 CREATE TYPE public.user_role AS ENUM ('superadmin', 'admin', 'user');
@@ -17,17 +19,30 @@ CREATE TABLE public.user_profiles (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Helper: returns the current user's role WITHOUT triggering RLS on
+-- user_profiles (SECURITY DEFINER bypasses RLS). Prevents policy recursion.
+CREATE OR REPLACE FUNCTION public.current_user_role()
+RETURNS public.user_role
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT role FROM public.user_profiles WHERE id = auth.uid();
+$$;
+
 -- Row Level Security (RLS) for user_profiles
 ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view their own profile" ON public.user_profiles
   FOR SELECT USING (auth.uid() = id);
 
--- Superadmins can do everything
-CREATE POLICY "Superadmins have full access to profiles" ON public.user_profiles
-  FOR ALL USING (
-    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) IN ('superadmin', 'admin')
-  );
+CREATE POLICY "Users can update their own profile" ON public.user_profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+-- Admins can do everything (uses the helper to avoid self-recursion)
+CREATE POLICY "Admins have full access to profiles" ON public.user_profiles
+  FOR ALL USING (public.current_user_role() IN ('superadmin', 'admin'));
 
 -- 3. Create system_config table for Live Configuration Center
 CREATE TABLE public.system_config (
@@ -41,9 +56,7 @@ CREATE TABLE public.system_config (
 
 ALTER TABLE public.system_config ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Only admins can access system_config" ON public.system_config
-  FOR ALL USING (
-    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) IN ('superadmin', 'admin')
-  );
+  FOR ALL USING (public.current_user_role() IN ('superadmin', 'admin'));
 
 -- 4. Create feature_flags table
 CREATE TABLE public.feature_flags (
@@ -58,9 +71,7 @@ ALTER TABLE public.feature_flags ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can read feature flags" ON public.feature_flags
   FOR SELECT USING (true);
 CREATE POLICY "Only admins can mutate feature flags" ON public.feature_flags
-  FOR ALL USING (
-    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) IN ('superadmin', 'admin')
-  );
+  FOR ALL USING (public.current_user_role() IN ('superadmin', 'admin'));
 
 -- 5. Create prompt_library table
 CREATE TABLE public.prompt_library (
@@ -75,9 +86,7 @@ CREATE TABLE public.prompt_library (
 
 ALTER TABLE public.prompt_library ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Only admins can access prompt library" ON public.prompt_library
-  FOR ALL USING (
-    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) IN ('superadmin', 'admin')
-  );
+  FOR ALL USING (public.current_user_role() IN ('superadmin', 'admin'));
 
 -- 6. Create audit_logs table
 CREATE TABLE public.audit_logs (
@@ -91,18 +100,17 @@ CREATE TABLE public.audit_logs (
 
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Only admins can read audit logs" ON public.audit_logs
-  FOR SELECT USING (
-    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) IN ('superadmin', 'admin')
-  );
--- Insert policy allows system actions
+  FOR SELECT USING (public.current_user_role() IN ('superadmin', 'admin'));
 CREATE POLICY "Admins can insert audit logs" ON public.audit_logs
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) IN ('superadmin', 'admin')
-  );
+  FOR INSERT WITH CHECK (public.current_user_role() IN ('superadmin', 'admin'));
 
 -- 7. Trigger to automatically create user_profiles upon signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
   INSERT INTO public.user_profiles (id, email, full_name, role)
   VALUES (
@@ -113,7 +121,7 @@ BEGIN
   );
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users

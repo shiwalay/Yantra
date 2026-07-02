@@ -1,12 +1,11 @@
 "use client";
 
 import React, { Suspense, useState, useEffect } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
   FileText, Sparkles, ArrowRight, ArrowLeft, Loader2, Copy, Check,
   Target, Users, Layers, Palette, Settings2, Wand2, Video, Volume2,
-  Type, Image as ImageIcon, Search, AlertTriangle,
+  AlertTriangle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GradientBorderCard } from "@/components/gradient";
@@ -341,7 +340,7 @@ function SectionCard({ icon: Icon, title, subtitle, children }: { icon: React.El
   );
 }
 
-function Package({ pkg, form, activeScene, setActiveScene, copy, copied }: {
+function Package({ pkg, form, activeScene, setActiveScene, copy, copied, onRegenerate }: {
   pkg: ProductionPackage; form: WizardInput; activeScene: number;
   setActiveScene: (n: number) => void; copy: (t: string, id: string) => void; copied: string | null; onRegenerate: () => void;
 }) {
@@ -364,38 +363,6 @@ function Package({ pkg, form, activeScene, setActiveScene, copy, copied }: {
           <div>Parameter-accurate English structure shown. Connect an AI engine key for the full spoken voiceover in <strong>{form.language}</strong>.</div>
         </div>
       )}
-
-      {/* Titles */}
-      <SectionCard icon={Type} title="Viral Title Options" subtitle="10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {pkg.titles.map((t, i) => (
-            <button key={i} onClick={() => copy(t, `title-${i}`)}
-              className="group flex items-start gap-2 text-left p-2.5 rounded-lg bg-white/5 border border-white/5 hover:border-primary/30 transition text-[11px] text-muted-foreground hover:text-white">
-              <span className="text-primary font-semibold shrink-0">{String(i + 1).padStart(2, "0")}</span>
-              <span className="flex-1">{t}</span>
-              {copied === `title-${i}` ? <Check size={11} className="text-success shrink-0" /> : <Copy size={11} className="opacity-0 group-hover:opacity-100 shrink-0" />}
-            </button>
-          ))}
-        </div>
-      </SectionCard>
-
-      {/* Hooks + Thumbnails */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <SectionCard icon={Sparkles} title="Hook Variations" subtitle="10">
-          <div className="space-y-1.5">
-            {pkg.hooks.map((h, i) => (
-              <p key={i} className="text-[11px] text-muted-foreground leading-relaxed"><span className="text-primary font-semibold">{i + 1}.</span> {h}</p>
-            ))}
-          </div>
-        </SectionCard>
-        <SectionCard icon={ImageIcon} title="Thumbnail Ideas" subtitle="10">
-          <div className="space-y-1.5">
-            {pkg.thumbnails.map((t, i) => (
-              <p key={i} className="text-[11px] text-muted-foreground leading-relaxed"><span className="text-primary font-semibold">{i + 1}.</span> {t}</p>
-            ))}
-          </div>
-        </SectionCard>
-      </div>
 
       {/* Script */}
       <SectionCard icon={FileText} title="Complete Video Script" subtitle={pkg.frameworkName}>
@@ -432,7 +399,16 @@ function Package({ pkg, form, activeScene, setActiveScene, copy, copied }: {
                             <p className="text-[10px] text-white leading-relaxed mt-1">{b.audio}</p>
                           </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground"><strong className="text-white">Delivery:</strong> {b.tip}</p>
+                        <div className="p-2.5 rounded-lg bg-success/5 border border-success/10">
+                          <span className="text-[9px] uppercase font-semibold text-success flex items-center gap-1"><Wand2 size={10} /> Expert Tip</span>
+                          <p className="text-[10px] text-white leading-relaxed mt-1">{b.tip}</p>
+                        </div>
+                        {b.warning && (
+                          <div className="p-2.5 rounded-lg bg-warning/5 border border-warning/15">
+                            <span className="text-[9px] uppercase font-semibold text-warning flex items-center gap-1"><AlertTriangle size={10} /> Retention Risk</span>
+                            <p className="text-[10px] text-white leading-relaxed mt-1">{b.warning}</p>
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   )}
@@ -467,21 +443,6 @@ function Package({ pkg, form, activeScene, setActiveScene, copy, copied }: {
         </div>
       </SectionCard>
 
-      {/* SEO */}
-      <SectionCard icon={Search} title="SEO Package">
-        <div className="space-y-2.5 text-[11px]">
-          <div><span className="text-muted-foreground font-semibold uppercase text-[9px] tracking-wide">Title</span><p className="text-white">{pkg.seo.title}</p></div>
-          <div><span className="text-muted-foreground font-semibold uppercase text-[9px] tracking-wide">Description</span><p className="text-muted-foreground leading-relaxed">{pkg.seo.description}</p></div>
-          <div className="flex flex-wrap gap-1.5">
-            {pkg.seo.hashtags.map((h, i) => <span key={i} className="px-2 py-0.5 rounded bg-white/5 text-primary border border-white/10 text-[10px]">{h}</span>)}
-          </div>
-          <div>
-            <span className="text-muted-foreground font-semibold uppercase text-[9px] tracking-wide">Chapters</span>
-            <div className="mt-1 space-y-0.5">{pkg.seo.chapters.map((c, i) => <p key={i} className="text-muted-foreground font-mono text-[10px]">{c}</p>)}</div>
-          </div>
-        </div>
-      </SectionCard>
-
       {/* Retention */}
       <SectionCard icon={Target} title="Viewer Retention Analysis">
         <ul className="space-y-1.5">
@@ -491,18 +452,18 @@ function Package({ pkg, form, activeScene, setActiveScene, copy, copied }: {
         </ul>
       </SectionCard>
 
-      {/* Handoff */}
+      {/* Handoff — regenerate at top-expert quality with the same inputs */}
       <GradientBorderCard gradient="violet" glow="rgba(139,92,246,0.5)" radius={24} thickness={2} innerClassName="p-5 flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-3">
           <div className="p-3 rounded-xl bg-primary/20 text-primary border border-primary/30 shrink-0"><Sparkles size={20} /></div>
           <div>
-            <h4 className="text-sm font-bold text-white">Script ready — optimize its SEO next</h4>
-            <p className="text-xs text-muted-foreground">Generate titles, descriptions and chapters tuned to rank.</p>
+            <h4 className="text-sm font-bold text-white">Your step-by-step script is ready</h4>
+            <p className="text-xs text-muted-foreground">Want a different take? Regenerate from the same inputs.</p>
           </div>
         </div>
-        <Link href={`/seo?topic=${encodeURIComponent(form.topic)}`} className="btn-premium rounded-full px-5 py-2.5 text-white font-semibold text-xs flex items-center gap-1.5 shrink-0">
-          Optimize Video SEO <ArrowRight size={14} />
-        </Link>
+        <button onClick={onRegenerate} className="btn-premium rounded-full px-5 py-2.5 text-white font-semibold text-xs flex items-center gap-1.5 shrink-0">
+          <Wand2 size={14} /> Regenerate script
+        </button>
       </GradientBorderCard>
     </div>
   );

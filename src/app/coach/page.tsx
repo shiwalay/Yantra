@@ -114,7 +114,7 @@ export default function GrowthCoach() {
                 <Bot size={18} className="animate-pulse" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-white">Influq Growth Coach</h3>
+                <h3 className="text-xs font-bold text-white">InfluQ Growth Coach</h3>
                 <p className="text-[10px] text-muted-foreground">Level 2 - Pro Assistant Connected</p>
               </div>
             </div>

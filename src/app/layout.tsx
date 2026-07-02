@@ -14,20 +14,20 @@ const geistMono = Geist_Mono({
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://influq.com";
-const title = "Influq | AI YouTube Growth OS";
+const title = "InfluQ | AI YouTube Growth OS";
 const description =
   "The AI YouTube Growth Operating System for creators, businesses, and agencies. From idea to viral strategy, script, thumbnail layout, and analytics optimization.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: title, template: "%s | Influq" },
+  title: { default: title, template: "%s | InfluQ" },
   description,
   keywords: ["YouTube growth", "AI YouTube tools", "video script generator", "YouTube SEO", "thumbnail CTR", "creator analytics"],
-  applicationName: "Influq",
+  applicationName: "InfluQ",
   openGraph: {
     type: "website",
     url: siteUrl,
-    siteName: "Influq",
+    siteName: "InfluQ",
     title,
     description,
   },

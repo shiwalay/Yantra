@@ -112,7 +112,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
             <div className={`flex flex-col transition-opacity duration-200 ${isSidebarHovered ? "opacity-100 lg:opacity-100" : "opacity-0 lg:opacity-100"}`}>
               <div className="flex items-center gap-1.5">
                 <span className="text-lg font-bold tracking-tight text-foreground">
-                  Influ<span className="text-primary">q</span>
+                  Influ<span className="text-primary">Q</span>
                 </span>
                 <span className="text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
                   OS

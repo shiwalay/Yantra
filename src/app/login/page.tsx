@@ -62,7 +62,7 @@ function AuthContent() {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center">
             <YoutubeIcon size={16} className="text-white" />
           </div>
-          <span className="text-lg font-bold tracking-tight text-white">Influ<span className="text-primary">q</span></span>
+          <span className="text-lg font-bold tracking-tight text-white">Influ<span className="text-primary">Q</span></span>
         </div>
 
         <div className="p-7 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]">
@@ -123,7 +123,7 @@ function AuthContent() {
           </form>
 
           <p className="text-center text-xs text-muted-foreground mt-5">
-            {mode === "signup" ? "Already have an account?" : "New to Influq?"}{" "}
+            {mode === "signup" ? "Already have an account?" : "New to InfluQ?"}{" "}
             <button onClick={() => { setMode(mode === "signup" ? "login" : "signup"); setError(null); setNotice(null); }}
               className="text-primary font-semibold hover:underline">
               {mode === "signup" ? "Sign in" : "Create one free"}

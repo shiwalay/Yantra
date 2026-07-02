@@ -58,7 +58,7 @@ export default function OnboardingPage() {
             <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-primary to-secondary shadow-[0_0_12px_rgba(139,92,246,0.4)] flex items-center justify-center">
               <YoutubeIcon size={15} className="text-white" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-white">Influ<span className="text-primary">q</span></span>
+            <span className="text-lg font-bold tracking-tight text-white">Influ<span className="text-primary">Q</span></span>
           </div>
           <div className="flex items-center justify-center gap-1.5 text-[10px] uppercase font-black tracking-widest text-muted-foreground">
             <span className={step >= 1 ? "text-primary" : ""}>About You</span>
@@ -140,7 +140,7 @@ export default function OnboardingPage() {
                   </div>
                   <h2 className="text-lg font-bold text-white">Connect your YouTube channel</h2>
                   <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                    Secure, read-only access to your metrics so Influq can find retention drops and opportunity gaps.
+                    Secure, read-only access to your metrics so InfluQ can find retention drops and opportunity gaps.
                   </p>
                 </div>
 
@@ -187,7 +187,7 @@ export default function OnboardingPage() {
                   </div>
                 </div>
                 <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 space-y-2 text-[11px] leading-relaxed">
-                  <p className="font-bold text-white flex items-center gap-1"><Sparkles size={11} className="text-primary" /> Influq requests permission to:</p>
+                  <p className="font-bold text-white flex items-center gap-1"><Sparkles size={11} className="text-primary" /> InfluQ requests permission to:</p>
                   <ul className="space-y-1 text-muted-foreground list-disc pl-4">
                     <li>View YouTube Analytics reports for your channels</li>
                     <li>View search terms, view durations, and click stats</li>

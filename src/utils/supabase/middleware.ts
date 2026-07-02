@@ -39,28 +39,45 @@ export async function updateSession(request: NextRequest) {
   }
 
   const url = request.nextUrl.clone();
-  if (url.pathname.startsWith('/admin') && url.pathname !== '/admin/login') {
+  const path = url.pathname;
+
+  // App routes that require an authenticated user (real session, not localStorage).
+  const APP_ROUTES = ['/dashboard', '/research', '/scripts', '/seo', '/analytics', '/thumbnails', '/frameworks', '/coach', '/billing', '/onboarding'];
+  const isAppRoute = APP_ROUTES.some((r) => path === r || path.startsWith(r + '/'));
+
+  // Admin area — requires the superadmin role.
+  if (path.startsWith('/admin') && path !== '/admin/login') {
     if (!user) {
       url.pathname = '/admin/login';
       return NextResponse.redirect(url);
-    } else {
-      try {
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-        
-        if (!profile || profile.role !== 'superadmin') {
-          url.pathname = '/dashboard';
-          return NextResponse.redirect(url);
-        }
-      } catch (error) {
-        console.error('Supabase profile fetch error:', error);
+    }
+    try {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      if (!profile || profile.role !== 'superadmin') {
         url.pathname = '/dashboard';
         return NextResponse.redirect(url);
       }
+    } catch (error) {
+      console.error('Supabase profile fetch error:', error);
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url);
     }
+  }
+
+  // Protected app routes — send guests to the login page.
+  if (isAppRoute && !user) {
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
+  }
+
+  // Logged-in users shouldn't sit on the auth page.
+  if (path === '/login' && user) {
+    url.pathname = '/dashboard';
+    return NextResponse.redirect(url);
   }
 
   return supabaseResponse;

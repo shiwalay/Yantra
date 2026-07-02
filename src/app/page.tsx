@@ -105,13 +105,16 @@ export default function MarketingLandingPage() {
   const billedAnnually = "₹29,988";
 
   const handleStartFree = () => {
-    setShowSignupModal(true);
+    // Route to the real signup flow.
+    window.location.href = "/login?mode=signup";
+  };
+
+  const handleSignIn = () => {
+    window.location.href = "/login";
   };
 
   const handleOAuthLogin = () => {
-    // Clear onboarded state to trigger onboarding flow on Google login
-    localStorage.removeItem("yantra_onboarded");
-    window.location.href = "/onboarding";
+    window.location.href = "/login";
   };
 
   const faqs = [
@@ -157,8 +160,8 @@ export default function MarketingLandingPage() {
             </Link>
           ) : (
             <>
-              <button 
-                onClick={handleStartFree}
+              <button
+                onClick={handleSignIn}
                 className="hidden sm:block text-xs font-bold text-white hover:text-primary transition-colors px-3 py-1.5"
               >
                 Sign In

@@ -67,9 +67,7 @@ export default function CommandCenter() {
   const [topicInput, setTopicInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  useEffect(() => {
-    if (!localStorage.getItem("yantra_onboarded")) router.push("/onboarding");
-  }, [router]);
+  // Auth is enforced by middleware (real Supabase session) — no localStorage gate.
 
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault();

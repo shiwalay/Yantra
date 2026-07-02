@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+import { LogOut } from "lucide-react";
 import { 
   LayoutDashboard, 
   Search, 
@@ -55,10 +57,26 @@ const mobileNavItems = [
 
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  
+  const router = useRouter();
+
   // React Hooks must be called unconditionally
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
   const [showNotificationPopup, setShowNotificationPopup] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data }) => setEmail(data.session?.user?.email ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setEmail(session?.user?.email ?? null));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const signOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  };
 
   // Marketing, onboarding, and the entire /admin area render outside the app
   // sidebar shell (admin has its own layout).
@@ -166,15 +184,22 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
               </Link>
             </div>
           </div>
-          {/* Always show Avatar at bottom, even when collapsed */}
-          <div className="mt-3 flex items-center justify-center lg:justify-start gap-3 px-2 mb-2 cursor-pointer group">
-            <div className="shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-xs text-white shadow-md">
-              SB
+          {/* Account + sign out */}
+          <div className="mt-3 flex items-center gap-2 px-2 mb-2">
+            <div className="shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-xs text-white shadow-md uppercase">
+              {email ? email[0] : "U"}
             </div>
-            <div className={`hidden lg:block overflow-hidden transition-opacity duration-200 ${isSidebarHovered ? "!block" : ""}`}>
-              <p className="text-[12px] font-bold text-foreground group-hover:text-primary transition-colors truncate">Swapnil B.</p>
+            <div className={`flex-1 min-w-0 hidden lg:block overflow-hidden transition-opacity duration-200 ${isSidebarHovered ? "!block" : ""}`}>
+              <p className="text-[12px] font-bold text-foreground truncate">{email ?? "Account"}</p>
               <p className="text-[10px] text-muted-foreground truncate">Growth Pro Plan</p>
             </div>
+            <button
+              onClick={signOut}
+              title="Sign out"
+              className={`shrink-0 p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors ${isSidebarHovered ? "block" : "hidden lg:block"}`}
+            >
+              <LogOut size={15} />
+            </button>
           </div>
         </div>
       </aside>

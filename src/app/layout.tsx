@@ -13,21 +13,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://yantra.ai";
-const title = "Yantra.ai | AI YouTube Growth OS";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://influq.com";
+const title = "Influq | AI YouTube Growth OS";
 const description =
   "The AI YouTube Growth Operating System for creators, businesses, and agencies. From idea to viral strategy, script, thumbnail layout, and analytics optimization.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: title, template: "%s | Yantra.ai" },
+  title: { default: title, template: "%s | Influq" },
   description,
   keywords: ["YouTube growth", "AI YouTube tools", "video script generator", "YouTube SEO", "thumbnail CTR", "creator analytics"],
-  applicationName: "Yantra.ai",
+  applicationName: "Influq",
   openGraph: {
     type: "website",
     url: siteUrl,
-    siteName: "Yantra.ai",
+    siteName: "Influq",
     title,
     description,
   },

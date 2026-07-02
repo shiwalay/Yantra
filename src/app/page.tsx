@@ -90,7 +90,7 @@ export default function MarketingLandingPage() {
   const [showDemoVideo, setShowDemoVideo] = useState(false);
 
   useEffect(() => {
-    setIsOnboarded(localStorage.getItem("yantra_onboarded") === "true");
+    setIsOnboarded(localStorage.getItem("influq_onboarded") === "true");
   }, []);
   const [activeDemoTab, setActiveDemoTab] = useState("decision");
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
@@ -118,9 +118,9 @@ export default function MarketingLandingPage() {
   };
 
   const faqs = [
-    { q: "Is Yantra just another keyword tool like vidIQ or TubeBuddy?", a: "No. Traditional tools give you charts and search volumes. Yantra gives you decisions. Our AI tells you exactly WHAT video to make next, WHICH framework to structure it with, and HOW to write hook pacing to maintain 80%+ audience retention." },
-    { q: "How secure is the YouTube channel OAuth connection?", a: "Completely secure. We use official Google OAuth 256-bit encrypted read-only tokens. Yantra reads your analytics data to find retention drops, but we never store your account credentials or publish videos without permission." },
-    { q: "Can I use Yantra if I have zero subscribers?", a: "Yes! In fact, the Creator Starter plan is designed specifically to help solo channels bypass the 'zero-views' zone by using proven visual frameworks and high-opportunity breakout search trends." },
+    { q: "Is Influq just another keyword tool like vidIQ or TubeBuddy?", a: "No. Traditional tools give you charts and search volumes. Influq gives you decisions. Our AI tells you exactly WHAT video to make next, WHICH framework to structure it with, and HOW to write hook pacing to maintain 80%+ audience retention." },
+    { q: "How secure is the YouTube channel OAuth connection?", a: "Completely secure. We use official Google OAuth 256-bit encrypted read-only tokens. Influq reads your analytics data to find retention drops, but we never store your account credentials or publish videos without permission." },
+    { q: "Can I use Influq if I have zero subscribers?", a: "Yes! In fact, the Creator Starter plan is designed specifically to help solo channels bypass the 'zero-views' zone by using proven visual frameworks and high-opportunity breakout search trends." },
     { q: "Can I cancel my subscription anytime?", a: "Yes. You can manage, upgrade, or cancel your subscription instantly inside your Billing portal. There are no long-term contracts." }
   ];
 
@@ -139,7 +139,7 @@ export default function MarketingLandingPage() {
             <YoutubeIcon size={18} className="text-white" />
           </div>
           <span className="text-lg font-bold tracking-tight text-white">
-            Yantra<span className="text-primary">.ai</span>
+            Influ<span className="text-primary">q</span>
           </span>
         </div>
 
@@ -189,7 +189,7 @@ export default function MarketingLandingPage() {
         </h1>
 
         <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
-          Instead of giving you complex charts and search volume metrics, Yantra gives you decisions. We guide your channel from idea research to viral scripting, design audits, and analytics.
+          Instead of giving you complex charts and search volume metrics, Influq gives you decisions. We guide your channel from idea research to viral scripting, design audits, and analytics.
         </p>
 
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
@@ -385,7 +385,7 @@ export default function MarketingLandingPage() {
       <section className="py-20 max-w-5xl mx-auto px-6 space-y-12" id="compare">
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-semibold text-white uppercase tracking-wider">How we compare</h2>
-          <p className="text-xs text-muted-foreground">Why Yantra is an Operating System, not just keyword statistics data.</p>
+          <p className="text-xs text-muted-foreground">Why Influq is an Operating System, not just keyword statistics data.</p>
         </div>
 
         <div className="p-6 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] overflow-x-auto">
@@ -393,7 +393,7 @@ export default function MarketingLandingPage() {
             <thead>
               <tr className="border-b border-white/10">
                 <th className="pb-3 font-bold text-white uppercase tracking-wider">Capability</th>
-                <th className="pb-3 font-bold text-primary uppercase tracking-wider">Yantra.ai</th>
+                <th className="pb-3 font-bold text-primary uppercase tracking-wider">Influq</th>
                 <th className="pb-3 font-bold text-muted-foreground uppercase tracking-wider">vidIQ</th>
                 <th className="pb-3 font-bold text-muted-foreground uppercase tracking-wider">TubeBuddy</th>
               </tr>
@@ -629,12 +629,12 @@ export default function MarketingLandingPage() {
           <div className="w-5 h-5 rounded bg-primary/20 flex items-center justify-center">
             <YoutubeIcon size={12} className="text-primary" />
           </div>
-          <span className="font-bold text-white">Yantra.ai</span>
+          <span className="font-bold text-white">Influq</span>
         </div>
         <p className="max-w-md mx-auto leading-relaxed">
           The AI YouTube Growth Operating System for creators, businesses, and agencies. Designed to optimize search performance, pacing, and audience retention metrics.
         </p>
-        <p>© 2026 Yantra.ai. All rights reserved. Google & YouTube OAuth verified API integrator.</p>
+        <p>© 2026 Influq. All rights reserved. Google & YouTube OAuth verified API integrator.</p>
       </footer>
 
       {/* Interactive Signup Modal Window overlay */}
@@ -658,7 +658,7 @@ export default function MarketingLandingPage() {
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center mx-auto mb-2">
                   <YoutubeIcon size={16} className="text-white" />
                 </div>
-                <h3 className="text-base font-bold text-white">Welcome to Yantra.ai</h3>
+                <h3 className="text-base font-bold text-white">Welcome to Influq</h3>
                 <p className="text-xs text-muted-foreground">Get started on your free account and launch your first audit.</p>
               </div>
 
@@ -734,7 +734,7 @@ export default function MarketingLandingPage() {
                   <Play size={24} className="fill-primary text-primary ml-1" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-bold text-white">Yantra.ai Feature Tour (2:00)</h4>
+                  <h4 className="text-lg font-bold text-white">Influq Feature Tour (2:00)</h4>
                   <p className="text-xs text-muted-foreground max-w-sm mx-auto mt-1">
                     Watch the AI Coach deconstruct script timelines, contrast score thumbnails, and identify analytics hook drop points.
                   </p>

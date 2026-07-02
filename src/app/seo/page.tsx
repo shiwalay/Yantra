@@ -72,8 +72,8 @@ function SeoEngineContent() {
   const descriptions = [
     `Want to know how to start a ${topic} in 2026? In this video, I break down the exact step-by-step framework we used to go from zero to ₹1.2 Crores in revenue. 
 
-🔥 Grab the free PDF checklist here: https://yantra.ai/templates/free
-💼 Book a free strategy call: https://yantra.ai/consulting
+🔥 Grab the free PDF checklist here: https://influq.com/templates/free
+💼 Book a free strategy call: https://influq.com/consulting
 
 TIMESTAMPS:
 0:00 - Intro

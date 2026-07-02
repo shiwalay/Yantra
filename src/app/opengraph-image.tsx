@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Yantra.ai — AI YouTube Growth OS";
+export const alt = "Influq — AI YouTube Growth OS";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -23,7 +23,7 @@ export default function OpengraphImage() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 28 }}>
           <div style={{ width: 72, height: 72, borderRadius: 18, background: "linear-gradient(135deg,#A855F7,#3B82F6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 44 }}>▶</div>
-          <div style={{ fontSize: 40, fontWeight: 800 }}>Yantra<span style={{ color: "#A855F7" }}>.ai</span></div>
+          <div style={{ fontSize: 40, fontWeight: 800 }}>Influ<span style={{ color: "#A855F7" }}>q</span></div>
         </div>
         <div style={{ fontSize: 68, fontWeight: 800, textAlign: "center", lineHeight: 1.05, letterSpacing: -2, maxWidth: 1000 }}>
           The AI YouTube Growth OS

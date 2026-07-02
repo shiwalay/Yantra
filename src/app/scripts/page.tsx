@@ -279,7 +279,7 @@ function WizardContent() {
                 </Field>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Brand name (optional)">
-                    <input className={inputCls} value={form.brand} onChange={(e) => set("brand", e.target.value)} placeholder="e.g. Yantra.ai" />
+                    <input className={inputCls} value={form.brand} onChange={(e) => set("brand", e.target.value)} placeholder="e.g. Influq" />
                   </Field>
                   <Field label="Speaker name (optional)">
                     <input className={inputCls} value={form.speaker} onChange={(e) => set("speaker", e.target.value)} placeholder="e.g. Swapnil" />

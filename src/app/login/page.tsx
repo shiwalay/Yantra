@@ -4,12 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { ArrowRight, Loader2, Lock, Mail } from "lucide-react";
-
-const YoutubeIcon = ({ size = 18, className = "" }: { size?: number; className?: string }) => (
-  <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" className={className}>
-    <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.5 12 3.5 12 3.5s-7.518 0-9.388.503a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.503 9.388.503 9.388.503s7.518 0 9.388-.503a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-  </svg>
-);
+import { InfluqLogo } from "@/components/logo";
 
 function AuthContent() {
   const router = useRouter();
@@ -58,11 +53,8 @@ function AuthContent() {
       <div className="absolute inset-0 cyber-grid pointer-events-none opacity-[0.12]" />
 
       <div className="w-full max-w-md z-10 space-y-6">
-        <div className="flex items-center justify-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center">
-            <YoutubeIcon size={16} className="text-white" />
-          </div>
-          <span className="text-lg font-bold tracking-tight text-white">Influ<span className="text-primary">Q</span></span>
+        <div className="flex items-center justify-center">
+          <InfluqLogo size={34} />
         </div>
 
         <div className="p-7 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]">

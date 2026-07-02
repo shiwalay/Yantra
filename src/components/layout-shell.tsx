@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { LogOut } from "lucide-react";
-import { 
+import { InfluqMark } from "@/components/logo";
+import {
   LayoutDashboard, 
   Search, 
   GitFork, 
@@ -106,9 +107,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         <div className="flex flex-col flex-1 overflow-hidden px-3 py-6">
           {/* Brand/Logo */}
           <div className="flex items-center gap-3 px-2 mb-8 whitespace-nowrap">
-            <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-[10px] bg-gradient-to-tr from-primary to-secondary">
-              <YoutubeIcon size={20} className="text-white" />
-            </div>
+            <InfluqMark size={38} className="shrink-0" />
             <div className={`flex flex-col transition-opacity duration-200 ${isSidebarHovered ? "opacity-100 lg:opacity-100" : "opacity-0 lg:opacity-100"}`}>
               <div className="flex items-center gap-1.5">
                 <span className="text-lg font-bold tracking-tight text-foreground">
@@ -210,9 +209,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         <header className="flex-none z-30 h-16 shrink-0 flex items-center justify-between px-4 md:px-8 border-b border-border/50 bg-background/80 backdrop-filter backdrop-blur-xl">
           {/* Page Title & Mobile Menu toggle */}
           <div className="flex items-center gap-3">
-            <div className="md:hidden flex items-center justify-center w-8 h-8 rounded-[8px] bg-gradient-to-tr from-primary to-secondary shadow-sm">
-              <YoutubeIcon size={16} className="text-white" />
-            </div>
+            <InfluqMark size={32} className="md:hidden" />
             <h1 className="text-[18px] md:text-xl font-bold text-foreground tracking-tight">
               {navItems.find((item) => item.href === pathname)?.name || "AI Command Center"}
             </h1>

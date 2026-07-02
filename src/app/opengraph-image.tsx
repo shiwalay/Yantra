@@ -22,7 +22,7 @@ export default function OpengraphImage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 28 }}>
-          <div style={{ width: 72, height: 72, borderRadius: 18, background: "linear-gradient(135deg,#A855F7,#3B82F6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 44 }}>▶</div>
+          <div style={{ width: 72, height: 72, borderRadius: 18, background: "linear-gradient(135deg,#A855F7,#6366F1,#3B82F6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 46, fontWeight: 800, color: "white" }}>Q</div>
           <div style={{ fontSize: 40, fontWeight: 800 }}>Influ<span style={{ color: "#A855F7" }}>Q</span></div>
         </div>
         <div style={{ fontSize: 68, fontWeight: 800, textAlign: "center", lineHeight: 1.05, letterSpacing: -2, maxWidth: 1000 }}>

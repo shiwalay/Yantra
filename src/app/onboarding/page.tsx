@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Check, Loader2, Lock, Shield, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
+import { InfluqMark } from "@/components/logo";
 
 const YoutubeIcon = ({ size = 18, className = "" }: { size?: number; className?: string }) => (
   <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" className={className}>
@@ -63,9 +64,7 @@ export default function OnboardingPage() {
         {/* Logo + progress */}
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-primary to-secondary shadow-[0_0_12px_rgba(139,92,246,0.4)] flex items-center justify-center">
-              <YoutubeIcon size={15} className="text-white" />
-            </div>
+            <InfluqMark size={30} />
             <span className="text-lg font-bold tracking-tight text-white">Influ<span className="text-primary">Q</span></span>
           </div>
           <div className="flex items-center justify-center gap-1.5 text-[10px] uppercase font-black tracking-widest text-muted-foreground">

@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GradientBorderCard, GradientBadge } from "@/components/gradient";
+import { InfluqMark } from "@/components/logo";
 
 const FEATURES = [
   { n: "01", color: "#8B5CF6", grad: "violet", Icon: Search, title: "Trend & Opportunity Research",
@@ -135,9 +136,7 @@ export default function MarketingLandingPage() {
       {/* Header Nav */}
       <header className="sticky top-0 z-40 h-16 flex items-center justify-between px-6 border-b border-white/10 bg-[#0a0a0c]/85 backdrop-blur-md max-w-7xl mx-auto rounded-b-2xl">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center">
-            <YoutubeIcon size={18} className="text-white" />
-          </div>
+          <InfluqMark size={32} />
           <span className="text-lg font-bold tracking-tight text-white">
             Influ<span className="text-primary">Q</span>
           </span>
@@ -626,9 +625,7 @@ export default function MarketingLandingPage() {
       {/* Footer */}
       <footer className="py-12 border-t border-white/10 bg-[#070709] text-center text-[10px] text-muted-foreground space-y-4 max-w-7xl mx-auto rounded-t-2xl">
         <div className="flex justify-center items-center gap-2">
-          <div className="w-5 h-5 rounded bg-primary/20 flex items-center justify-center">
-            <YoutubeIcon size={12} className="text-primary" />
-          </div>
+          <InfluqMark size={20} />
           <span className="font-bold text-white">InfluQ</span>
         </div>
         <p className="max-w-md mx-auto leading-relaxed">

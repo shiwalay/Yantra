@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   const tokens = await exchangeCode(code, `${origin}/api/youtube/callback`);
   if (!tokens.access_token) {
     console.error("YouTube token exchange failed:", JSON.stringify(tokens));
-    return fail("token");
+    return fail(tokens.error ? `token_${tokens.error}` : "token");
   }
 
   const channel = await fetchChannel(tokens.access_token);

@@ -138,7 +138,7 @@ export default function CommandCenter() {
       {ytError && (
         <motion.div variants={itemVariants} className="rounded-2xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-xs text-destructive">
           <strong>YouTube connect failed</strong> (reason: {ytError}).{" "}
-          {ytError === "token" && "Server couldn't exchange the code — set GOOGLE_CLIENT_SECRET in Vercel and redeploy."}
+          {ytError.startsWith("token") && "Server couldn't exchange the code — check GOOGLE_CLIENT_SECRET in Vercel (invalid_client = wrong secret; redirect_uri_mismatch = URI not registered)."}
           {ytError === "state" && "Security check failed — try connecting again."}
           {ytError === "channel" && "No YouTube channel found on that Google account (or the Data API isn't enabled)."}
         </motion.div>

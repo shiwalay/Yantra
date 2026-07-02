@@ -60,7 +60,9 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
   const [showNotificationPopup, setShowNotificationPopup] = useState(false);
 
-  const isPublicPage = pathname === "/" || pathname === "/onboarding" || pathname === "/admin";
+  // Marketing, onboarding, and the entire /admin area render outside the app
+  // sidebar shell (admin has its own layout).
+  const isPublicPage = pathname === "/" || pathname === "/onboarding" || pathname.startsWith("/admin");
 
   if (isPublicPage) {
     return <div className="w-full min-h-screen bg-background text-foreground select-none">{children}</div>;
@@ -68,12 +70,12 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
 
   return (
     <div className="relative h-screen w-full flex text-foreground bg-background overflow-hidden">
-      {/* Background Decorative Glow Orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] rounded-full bg-primary/20 blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[400px] md:w-[600px] h-[400px] md:h-[600px] rounded-full bg-secondary/10 blur-[120px] pointer-events-none" />
+      {/* Background Decorative Glow Orbs — restrained, barely-there ambient tint */}
+      <div className="absolute top-[-10%] left-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] rounded-full bg-primary/[0.06] blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[400px] md:w-[600px] h-[400px] md:h-[600px] rounded-full bg-secondary/[0.04] blur-[140px] pointer-events-none" />
 
       {/* Cyber Grid Overlay */}
-      <div className="absolute inset-0 cyber-grid pointer-events-none opacity-20" />
+      <div className="absolute inset-0 cyber-grid pointer-events-none opacity-[0.12]" />
 
       {/* Sidebar Navigation - Tablet (Collapsible) & Desktop (Expanded) */}
       <aside
@@ -86,7 +88,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         <div className="flex flex-col flex-1 overflow-hidden px-3 py-6">
           {/* Brand/Logo */}
           <div className="flex items-center gap-3 px-2 mb-8 whitespace-nowrap">
-            <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-[10px] bg-gradient-to-tr from-primary to-secondary shadow-[0_0_15px_rgba(139,92,246,0.3)]">
+            <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-[10px] bg-gradient-to-tr from-primary to-secondary">
               <YoutubeIcon size={20} className="text-white" />
             </div>
             <div className={`flex flex-col transition-opacity duration-200 ${isSidebarHovered ? "opacity-100 lg:opacity-100" : "opacity-0 lg:opacity-100"}`}>
@@ -265,7 +267,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       {/* Mobile Floating Action Button (FAB) for AI Assistant */}
       <Link 
         href="/coach"
-        className="md:hidden fixed bottom-24 right-4 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-[0_4px_20px_rgba(139,92,246,0.6)] hover:scale-105 active:scale-95 transition-all"
+        className="md:hidden fixed bottom-24 right-4 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.45)] hover:scale-105 active:scale-95 transition-all"
       >
         <Sparkles size={24} className="animate-pulse" />
       </Link>

@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  /* Premium Dark Palette */
-  --background: 240 10% 4%;
+  /* Premium Dark Palette — subtly cool, near-black with depth */
+  --background: 240 14% 4%;
   --foreground: 0 0% 98%;
-  --card: 240 10% 8%;
+  --card: 240 12% 7%;
   --card-foreground: 0 0% 98%;
-  --popover: 240 10% 4%;
+  --popover: 240 14% 6%;
   --popover-foreground: 0 0% 98%;
-  
-  /* Premium Blue primary */
-  --primary: 220 90% 60%;
+
+  /* Signature Violet primary — unified with the brand glows (#8B5CF6) */
+  --primary: 258 90% 66%;
   --primary-foreground: 0 0% 100%;
-  
-  /* AI Purple Accent */
-  --secondary: 270 85% 65%;
+
+  /* Electric Indigo accent for gradients */
+  --secondary: 230 92% 64%;
   --secondary-foreground: 0 0% 100%;
-  
-  --muted: 240 5% 15%;
-  --muted-foreground: 240 5% 60%;
-  
-  --accent: 240 5% 15%;
+
+  --muted: 240 6% 13%;
+  --muted-foreground: 240 5% 62%;
+
+  --accent: 240 6% 13%;
   --accent-foreground: 0 0% 98%;
-  
+
   /* Emerald positive growth */
-  --success: 150 80% 40%;
+  --success: 152 76% 44%;
   --success-foreground: 0 0% 98%;
 
   /* Amber Warning */
@@ -34,12 +34,12 @@
   /* Coral Danger */
   --destructive: 10 85% 55%;
   --destructive-foreground: 0 0% 98%;
-  
-  --border: 240 5% 15%;
-  --input: 240 5% 15%;
-  --ring: 220 90% 60%;
-  
-  --radius: 1rem; /* 16px */
+
+  --border: 240 8% 15%;
+  --input: 240 8% 15%;
+  --ring: 258 90% 66%;
+
+  --radius: 0.75rem; /* 12px — tighter, enterprise rhythm */
 }
 
 @theme {
@@ -111,12 +111,27 @@
   }
 }
 
+html {
+  /* Larger base font size — scales all rem-based body text site-wide */
+  font-size: 112.5%; /* 18px base (was 16px) */
+}
+
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  /* Use the Geist font actually loaded in layout.tsx (was falling back to system) */
+  font-family: var(--font-geist-sans), 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
+
+/* Refined display typography — tighter optical tracking on large headings */
+h1, h2, h3 {
+  letter-spacing: -0.022em;
+}
+h1 { line-height: 1.05; }
 
 /* Premium Scrollbars */
 ::-webkit-scrollbar {
@@ -135,6 +150,60 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary) / 0.5);
+}
+
+/* Premium elevated surface — "lit from above" with a subtle top highlight.
+   Apply alongside bg-card for depth that flat borders can't achieve. */
+.surface-elevated {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 60%),
+    hsl(var(--card));
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 24px 48px -24px rgba(0, 0, 0, 0.7);
+}
+
+/* Restrained primary CTA — solid accent, faint top sheen, soft neutral shadow.
+   Calm and precise (Linear/Vercel), not neon. */
+.btn-premium {
+  background-color: hsl(var(--primary));
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.12) inset,
+    0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  transition: background-color 0.18s ease, transform 0.12s ease;
+}
+.btn-premium:hover {
+  background-color: hsl(258 90% 70%);
+}
+.btn-premium:active {
+  transform: translateY(0.5px);
+}
+.btn-premium:disabled {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Gradient design system — bold headlines + pill buttons */
+.text-gradient-brand {
+  background-image: linear-gradient(90deg, #A855F7, #6366F1, #3B82F6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.btn-pill {
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.btn-pill:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 /* Glassmorphism Classes */
@@ -169,8 +238,8 @@ body {
 }
 
 .glow-orb {
-  filter: blur(80px);
-  opacity: 0.15;
+  filter: blur(90px);
+  opacity: 0.06;
   pointer-events: none;
 }
 

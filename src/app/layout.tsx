@@ -13,9 +13,29 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://yantra.ai";
+const title = "Yantra.ai | AI YouTube Growth OS";
+const description =
+  "The AI YouTube Growth Operating System for creators, businesses, and agencies. From idea to viral strategy, script, thumbnail layout, and analytics optimization.";
+
 export const metadata: Metadata = {
-  title: "Yantra.ai | AI YouTube Growth OS",
-  description: "The AI YouTube Growth Operating System for creators, businesses, and agencies. From idea to viral strategy, script, thumbnail layout, and analytics optimization.",
+  metadataBase: new URL(siteUrl),
+  title: { default: title, template: "%s | Yantra.ai" },
+  description,
+  keywords: ["YouTube growth", "AI YouTube tools", "video script generator", "YouTube SEO", "thumbnail CTR", "creator analytics"],
+  applicationName: "Yantra.ai",
+  openGraph: {
+    type: "website",
+    url: siteUrl,
+    siteName: "Yantra.ai",
+    title,
+    description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 import { CSPostHogProvider } from '@/providers/posthog-provider';
@@ -46,7 +66,10 @@ export default function RootLayout({
           />
         )}
       </head>
-      <body className="min-h-full bg-[#0a0a0c] text-foreground antialiased selection:bg-primary/30 selection:text-white">
+      <body
+        suppressHydrationWarning
+        className="min-h-full bg-[#0a0a0c] text-foreground antialiased selection:bg-primary/30 selection:text-white"
+      >
         <CSPostHogProvider>
           <LayoutShell>{children}</LayoutShell>
         </CSPostHogProvider>

@@ -180,15 +180,15 @@ export default function FrameworkEngine() {
         </div>
       </GradientBorderCard>
 
-      {/* Grid Layout: Left Framework cards, Right Interactive Timeline preview */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Side: Cards */}
-        <div className="lg:col-span-7 space-y-4">
+      {/* Stacked rows: Available Video Frameworks, then Interactive Retention Flowchart */}
+      <div className="space-y-8">
+        {/* Row 1: Framework cards */}
+        <div className="space-y-4">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
             <GitFork size={14} /> Available Video Frameworks
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {frameworks.map((fw) => {
               const isSelected = selectedId === fw.id;
               return (
@@ -230,8 +230,8 @@ export default function FrameworkEngine() {
           </div>
         </div>
 
-        {/* Right Side: Flowchart & Decisional Rules */}
-        <div className="lg:col-span-5 space-y-6">
+        {/* Row 2: Flowchart & Decisional Rules */}
+        <div className="space-y-6">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Interactive Retention Flowchart
           </h3>
@@ -248,7 +248,7 @@ export default function FrameworkEngine() {
             </div>
 
             {/* Strategic Details */}
-            <div className="grid grid-cols-2 gap-4 text-[11px]">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[11px]">
               <div>
                 <span className="text-[9px] text-muted-foreground uppercase font-semibold block">Hook style</span>
                 <span className="font-bold text-white">{currentFramework.hookStyle}</span>

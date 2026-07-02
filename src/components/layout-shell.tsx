@@ -128,7 +128,8 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
           <nav className="space-y-1.5 flex-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href;
+              // "Find Winning Topics" stays highlighted through the frameworks flow.
+              const isActive = pathname === item.href || (item.href === "/research" && pathname.startsWith("/frameworks"));
 
               return (
                 <Link
@@ -220,7 +221,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-3">
             <InfluqMark size={32} className="md:hidden" />
             <h1 className="text-[18px] md:text-xl font-bold text-foreground tracking-tight">
-              {navItems.find((item) => item.href === pathname)?.name || "AI Command Center"}
+              {navItems.find((item) => item.href === pathname || (item.href === "/research" && pathname.startsWith("/frameworks")))?.name || "AI Command Center"}
             </h1>
           </div>
 
@@ -308,7 +309,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         <div className="flex items-center justify-between h-full max-w-md mx-auto">
           {mobileNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || (item.href === "/research" && pathname.startsWith("/frameworks"));
 
             return (
               <Link

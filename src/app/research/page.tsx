@@ -1,76 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Search, TrendingUp, Flame, Volume2, DollarSign, Zap, Eye, Sparkles,
-  ArrowRight, Loader2, Target, LayoutGrid, Hash,
+  ArrowRight, Loader2, Target, LayoutGrid, Hash, Wand2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts";
 import { ScoreRing, IndicatorBar, StatTile, Tabs, ScoreChip, toneForScore } from "@/components/vidiq";
 import { GradientBorderCard } from "@/components/gradient";
-
-// Pre-packaged search templates
-const database: Record<string, any> = {
-  "ai business": {
-    keyword: "AI Business", score: 92, volume: 95, competition: 42, trend: 98, revenue: 87, virality: 91,
-    intent: "Commercial / Educational", seasonality: "Year-round high demand with Q4 peaks",
-    chartData: [
-      { name: "Jan", interest: 45 }, { name: "Feb", interest: 50 }, { name: "Mar", interest: 62 },
-      { name: "Apr", interest: 78 }, { name: "May", interest: 85 }, { name: "Jun", interest: 98 },
-    ],
-    related: [
-      { term: "AI Agency Setup", growth: "+380%", difficulty: "Medium" },
-      { term: "AI Employee Automation", growth: "+210%", difficulty: "Easy" },
-      { term: "Make money with AI 2026", growth: "+145%", difficulty: "Hard" },
-      { term: "Gemini 3.5 API tutorial", growth: "+490%", difficulty: "Easy" },
-    ],
-    videos: [
-      { title: "I Built a $10,000/mo AI Agency in 14 Days", channel: "Techopreneur", views: "142K", velocity: "2.4K v/h", age: "3 days ago" },
-      { title: "AI Business Ideas You Can Start TONIGHT", channel: "Future Tools", views: "389K", velocity: "900 v/h", age: "2 weeks ago" },
-      { title: "Why 99% of AI Startups Will Fail", channel: "SaaS Chronicles", views: "88K", velocity: "1.1K v/h", age: "5 days ago" },
-    ],
-  },
-  "digital marketing": {
-    keyword: "Digital Marketing", score: 68, volume: 88, competition: 82, trend: 55, revenue: 72, virality: 45,
-    intent: "Transactional / Educational", seasonality: "Slight dip in December, high in Q1",
-    chartData: [
-      { name: "Jan", interest: 70 }, { name: "Feb", interest: 72 }, { name: "Mar", interest: 69 },
-      { name: "Apr", interest: 71 }, { name: "May", interest: 68 }, { name: "Jun", interest: 65 },
-    ],
-    related: [
-      { term: "Digital marketing for beginners", growth: "+15%", difficulty: "Hard" },
-      { term: "TikTok ads framework", growth: "+88%", difficulty: "Medium" },
-      { term: "B2B lead generation automation", growth: "+120%", difficulty: "Medium" },
-      { term: "SEO checklist 2026", growth: "+45%", difficulty: "Hard" },
-    ],
-    videos: [
-      { title: "Digital Marketing Tutorial for Beginners (Full Course)", channel: "Marketing Max", views: "1.2M", velocity: "150 v/h", age: "6 months ago" },
-      { title: "How to Get Your First Marketing Client", channel: "Agency Builder", views: "94K", velocity: "300 v/h", age: "1 month ago" },
-      { title: "The Death of Traditional Advertising", channel: "Ad Guru", views: "180K", velocity: "420 v/h", age: "3 weeks ago" },
-    ],
-  },
-  "nextjs": {
-    keyword: "Next.js", score: 84, volume: 78, competition: 38, trend: 92, revenue: 80, virality: 85,
-    intent: "Developer / Informational", seasonality: "Spikes during Vercel conferences (Oct/May)",
-    chartData: [
-      { name: "Jan", interest: 60 }, { name: "Feb", interest: 64 }, { name: "Mar", interest: 72 },
-      { name: "Apr", interest: 81 }, { name: "May", interest: 90 }, { name: "Jun", interest: 92 },
-    ],
-    related: [
-      { term: "Next.js 16 tutorial app router", growth: "+450%", difficulty: "Easy" },
-      { term: "Next.js React Server Actions", growth: "+160%", difficulty: "Medium" },
-      { term: "Next.js Tailwind v4 configuration", growth: "+310%", difficulty: "Easy" },
-      { term: "Deploy Nextjs Docker", growth: "+75%", difficulty: "Medium" },
-    ],
-    videos: [
-      { title: "Next.js 16 Crash Course (Everything You Need to Know)", channel: "CodeStack", views: "64K", velocity: "850 v/h", age: "2 days ago" },
-      { title: "React 19 & Next.js Server Components Tutorial", channel: "Web Dev Simplified", views: "245K", velocity: "400 v/h", age: "3 weeks ago" },
-      { title: "Why I'm Moving Away from Next.js in 2026", channel: "TechRant", views: "115K", velocity: "1.2K v/h", age: "4 days ago" },
-    ],
-  },
-};
 
 const TABS = [
   { id: "overview", label: "Overview", icon: LayoutGrid },
@@ -78,62 +17,78 @@ const TABS = [
   { id: "competitors", label: "Competitors", icon: Eye },
 ];
 
+const DEFAULT_SUGGESTIONS = ["AI Business", "Digital Marketing", "NextJS"];
+
 export default function ResearchEngine() {
-  const [query, setQuery] = useState("AI Business");
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [booting, setBooting] = useState(true);
   const [tab, setTab] = useState("overview");
-  const [data, setData] = useState<any>(database["ai business"]);
+  const [data, setData] = useState<any>(null);
+  const [rec, setRec] = useState<any>(null);
+  const [suggestions, setSuggestions] = useState<string[]>(DEFAULT_SUGGESTIONS);
+  const [insight, setInsight] = useState<string>("");
 
-  const handleSearch = (searchTerm: string) => {
+  // Analyze a topic — always personalized to the signed-in creator (server reads
+  // their profile + connected channel).
+  const handleSearch = useCallback(async (searchTerm: string) => {
+    const term = searchTerm.trim();
+    if (!term) return;
+    setQuery(term);
     setLoading(true);
-    setTimeout(() => {
-      const formatted = searchTerm.toLowerCase().trim();
-      let matchedData = database[formatted];
-
-      if (!matchedData) {
-        const volumeVal = Math.floor(Math.random() * 40) + 55;
-        const compVal = Math.floor(Math.random() * 50) + 30;
-        const trendVal = Math.floor(Math.random() * 40) + 60;
-        const revVal = Math.floor(Math.random() * 30) + 60;
-        const viralVal = Math.floor(Math.random() * 40) + 50;
-        const overallScore = Math.round((volumeVal * 0.3 + (100 - compVal) * 0.2 + trendVal * 0.2 + revVal * 0.15 + viralVal * 0.15));
-
-        matchedData = {
-          keyword: searchTerm, score: overallScore, volume: volumeVal, competition: compVal,
-          trend: trendVal, revenue: revVal, virality: viralVal,
-          intent: "Informational / Commercial", seasonality: "Standard demand with seasonal variations",
-          chartData: [
-            { name: "Jan", interest: Math.floor(Math.random() * 30) + 20 },
-            { name: "Feb", interest: Math.floor(Math.random() * 40) + 30 },
-            { name: "Mar", interest: Math.floor(Math.random() * 40) + 40 },
-            { name: "Apr", interest: Math.floor(Math.random() * 50) + 40 },
-            { name: "May", interest: Math.floor(Math.random() * 60) + 40 },
-            { name: "Jun", interest: trendVal },
-          ],
-          related: [
-            { term: `${searchTerm} tutorial 2026`, growth: `+${Math.floor(Math.random() * 200) + 80}%`, difficulty: "Easy" },
-            { term: `${searchTerm} secrets`, growth: `+${Math.floor(Math.random() * 150) + 40}%`, difficulty: "Medium" },
-            { term: `Best ${searchTerm} strategies`, growth: `+${Math.floor(Math.random() * 100) + 20}%`, difficulty: "Hard" },
-          ],
-          videos: [
-            { title: `How to master ${searchTerm} fast`, channel: "Creator Pro", views: "34K", velocity: "120 v/h", age: "1 week ago" },
-            { title: `The truth about ${searchTerm}`, channel: "Inside Tech", views: "82K", velocity: "410 v/h", age: "4 days ago" },
-          ],
-        };
+    setTab("overview");
+    try {
+      const res = await fetch("/api/ai/research", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keyword: term }),
+      });
+      const j = await res.json();
+      if (j.analysis) {
+        setData(j.analysis);
+        setRec(j.recommendation ?? null);
       }
-
-      setData(matchedData);
+    } catch {
+      /* keep prior result; user can retry */
+    } finally {
       setLoading(false);
-      setTab("overview");
-    }, 800);
-  };
+    }
+  }, []);
+
+  // On load, pull personalized topic suggestions for this creator, then
+  // auto-analyze the strongest one so the page opens on a tailored result.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/ai/research", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode: "suggest" }),
+        });
+        const j = await res.json();
+        if (cancelled) return;
+        const list: string[] = Array.isArray(j.suggestions) && j.suggestions.length ? j.suggestions.slice(0, 6) : DEFAULT_SUGGESTIONS;
+        setSuggestions(list);
+        if (j.insight) setInsight(j.insight);
+        await handleSearch(list[0]);
+      } catch {
+        if (!cancelled) await handleSearch(DEFAULT_SUGGESTIONS[0]);
+      } finally {
+        if (!cancelled) setBooting(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [handleSearch]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query) handleSearch(query);
   };
 
-  const verdict = data.score >= 80 ? "Highly Recommended" : data.score >= 60 ? "Moderate Potential" : "High Competition";
+  const verdict = !data ? "" : data.score >= 80 ? "Highly Recommended" : data.score >= 60 ? "Moderate Potential" : "High Competition";
+  const fitScore: number = rec?.fitScore ?? data?.score ?? 0;
+  const fitVerdict = fitScore >= 80 ? "Perfect fit for your channel" : fitScore >= 60 ? "Good fit — angle it right" : "Stretch — adapt it to your niche";
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -144,7 +99,7 @@ export default function ResearchEngine() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <input
               type="text" value={query} onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search keyword (e.g. AI Business, NextJS, Digital Marketing)..."
+              placeholder="Find a winning topic — search any idea to see how it fits your channel…"
               className="w-full bg-[#121216] border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-white text-sm transition focus:border-primary focus:ring-1 focus:ring-primary"
             />
           </div>
@@ -152,29 +107,73 @@ export default function ResearchEngine() {
             {loading ? <Loader2 size={16} className="animate-spin" /> : "Analyze"}
           </button>
         </form>
+
+        {/* Personalized insight + suggestion chips */}
+        {insight && (
+          <div className="flex items-start gap-2 text-xs text-primary/90 bg-primary/5 border border-primary/15 rounded-xl px-3 py-2">
+            <Wand2 size={13} className="mt-0.5 shrink-0" />
+            <span>{insight}</span>
+          </div>
+        )}
         <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-          <span>Try searching:</span>
-          {["AI Business", "Digital Marketing", "NextJS"].map((term) => (
-            <button key={term} onClick={() => { setQuery(term); handleSearch(term); }}
-              className="px-2.5 py-1 rounded-full bg-white/5 border border-white/5 hover:border-white/10 text-white transition-colors">
-              {term}
-            </button>
-          ))}
+          <span className="flex items-center gap-1"><Sparkles size={12} className="text-primary" /> {insight ? "Winning topics for you:" : "Try searching:"}</span>
+          {booting && suggestions === DEFAULT_SUGGESTIONS ? (
+            <span className="text-muted-foreground/60 flex items-center gap-1.5"><Loader2 size={11} className="animate-spin" /> personalizing…</span>
+          ) : (
+            suggestions.map((term) => (
+              <button key={term} onClick={() => handleSearch(term)}
+                className="px-2.5 py-1 rounded-full bg-white/5 border border-white/5 hover:border-primary/30 hover:text-white text-white/90 transition-colors">
+                {term}
+              </button>
+            ))
+          )}
         </div>
       </div>
 
       <AnimatePresence mode="wait">
-        {loading ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        {loading || (booting && !data) ? (
+          <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="h-96 flex flex-col items-center justify-center gap-4 bg-card border border-white/[0.06] rounded-3xl shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]">
             <Loader2 size={40} className="text-primary animate-spin" />
             <div className="text-center">
-              <p className="font-semibold text-white">Researching Opportunity Metrics…</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Fetching search volume, trends and competitor velocities</p>
+              <p className="font-semibold text-white">Personalizing your topic report…</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Matching demand, trends and competitors against your niche &amp; channel</p>
             </div>
           </motion.div>
-        ) : (
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} className="space-y-6">
+        ) : data ? (
+          <motion.div key="result" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} className="space-y-6">
+            {/* Personalized recommendation — the always-on "for you" verdict */}
+            {rec && (
+              <GradientBorderCard gradient="violet" glow="rgba(139,92,246,0.45)" radius={24} thickness={2}
+                innerClassName="p-6 flex flex-col md:flex-row items-center gap-6">
+                <div className="flex flex-col items-center gap-2 shrink-0">
+                  <ScoreRing value={fitScore} size={120} caption="fit for you" />
+                  <span className="text-[11px] font-semibold text-white text-center max-w-[140px]">{fitVerdict}</span>
+                </div>
+                <div className="flex-1 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-lg bg-primary/20 text-primary border border-primary/30"><Wand2 size={15} /></span>
+                    <h3 className="text-sm font-bold text-white">Recommended for your channel</h3>
+                  </div>
+                  <p className="text-sm text-white/90 leading-relaxed">{rec.why}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="rounded-xl bg-white/5 border border-white/5 p-3">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5 mb-1"><Target size={11} /> Your angle</p>
+                      <p className="text-xs text-white leading-relaxed">{rec.angle}</p>
+                    </div>
+                    <div className="rounded-xl bg-white/5 border border-white/5 p-3">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5 mb-1"><Zap size={11} /> First step</p>
+                      <p className="text-xs text-white leading-relaxed">{rec.firstStep}</p>
+                    </div>
+                  </div>
+                  <Link href={`/scripts?topic=${encodeURIComponent(data.keyword)}`}
+                    className="inline-flex px-5 py-2.5 rounded-full btn-premium text-white font-semibold text-xs items-center gap-1.5">
+                    Turn this into a script <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </GradientBorderCard>
+            )}
+
             {/* Header row */}
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-3">
@@ -258,17 +257,17 @@ export default function ResearchEngine() {
                   <p className="text-[10px] text-muted-foreground mt-0.5">Sub-niches with growing search interest and lower competition.</p>
                 </div>
                 <div className="space-y-2">
-                  {data.related.map((sub: any) => {
+                  {(data.related ?? []).map((sub: any) => {
                     const diffVal = sub.difficulty === "Easy" ? 20 : sub.difficulty === "Medium" ? 55 : 90;
                     return (
-                      <button key={sub.term} onClick={() => { setQuery(sub.term); handleSearch(sub.term); }}
+                      <button key={sub.term} onClick={() => handleSearch(sub.term)}
                         className="w-full p-3 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10 transition text-left flex justify-between items-center gap-3">
                         <div className="flex items-center gap-3">
                           <Hash size={14} className="text-muted-foreground shrink-0" />
                           <p className="text-xs font-semibold text-white">{sub.term}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <ScoreChip value={diffVal} invert>{`DIFF: ${sub.difficulty.toUpperCase()}`}</ScoreChip>
+                          <ScoreChip value={diffVal} invert>{`DIFF: ${String(sub.difficulty).toUpperCase()}`}</ScoreChip>
                           <span className="text-xs font-semibold text-success bg-success/10 px-2 py-0.5 rounded border border-success/20">{sub.growth}</span>
                         </div>
                       </button>
@@ -289,7 +288,7 @@ export default function ResearchEngine() {
                   </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {data.videos.map((vid: any) => (
+                  {(data.videos ?? []).map((vid: any) => (
                     <div key={vid.title} className="p-4 rounded-xl bg-white/5 border border-white/5 flex flex-col justify-between gap-4">
                       <div className="space-y-1.5">
                         <div className="flex justify-between items-center text-[10px] text-muted-foreground">
@@ -315,13 +314,20 @@ export default function ResearchEngine() {
                 <div className="p-3 rounded-xl bg-primary/20 text-primary border border-primary/30 shrink-0"><Sparkles size={20} /></div>
                 <div>
                   <h4 className="text-sm font-bold text-white">Ready to create a strategy for &quot;{data.keyword}&quot;?</h4>
-                  <p className="text-xs text-muted-foreground">The AI Coach mapped this topic to 3 optimal retention frameworks.</p>
+                  <p className="text-xs text-muted-foreground">Pick a retention framework matched to this topic and your goal.</p>
                 </div>
               </div>
               <Link href="/frameworks" className="px-5 py-2.5 rounded-full btn-premium text-white font-semibold text-xs flex items-center gap-1.5 shrink-0">
                 Choose Video Framework <ArrowRight size={14} />
               </Link>
             </GradientBorderCard>
+          </motion.div>
+        ) : (
+          <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="h-72 flex flex-col items-center justify-center gap-3 bg-card border border-white/[0.06] rounded-3xl text-center px-6">
+            <Search size={30} className="text-muted-foreground" />
+            <p className="text-sm font-semibold text-white">Search any topic to see how it fits your channel</p>
+            <p className="text-xs text-muted-foreground max-w-sm">Every report is personalized to your niche, goal and connected channel.</p>
           </motion.div>
         )}
       </AnimatePresence>

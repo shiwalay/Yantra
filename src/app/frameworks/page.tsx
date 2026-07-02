@@ -1,21 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
-import { 
-  GitFork, 
-  Clock, 
-  HelpCircle, 
-  ArrowRight, 
-  Play, 
-  Sparkles, 
-  Eye,
-  Zap,
-  TrendingUp,
-  Volume2,
-  FileText
+import {
+  GitFork, Clock, ArrowRight, Sparkles, Zap, TrendingUp, FileText,
+  CheckCircle2, ChevronLeft, ChevronRight, Target, Image as ImageIcon, Megaphone, Film, Heart,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, ReferenceLine } from "recharts";
 import { StatTile, ScoreChip, ScoreRing, toneForScore } from "@/components/vidiq";
 import { GradientBorderCard } from "@/components/gradient";
 
@@ -137,10 +128,39 @@ const frameworks = [
   }
 ];
 
-export default function FrameworkEngine() {
-  const [selectedId, setSelectedId] = useState<number>(4); // Case Study default
+const RECOMMENDED_ID = 4; // AI-recommended framework (Case Study)
 
-  const currentFramework = frameworks.find((f) => f.id === selectedId) || frameworks[3];
+export default function FrameworkEngine() {
+  const [selectedId, setSelectedId] = useState<number>(RECOMMENDED_ID);
+  const [activeStep, setActiveStep] = useState<number>(0);
+
+  const recommended = frameworks.find((f) => f.id === RECOMMENDED_ID) || frameworks[3];
+  const currentIndex = frameworks.findIndex((f) => f.id === selectedId);
+  const currentFramework = frameworks[currentIndex] || frameworks[3];
+
+  const select = (id: number) => { setSelectedId(id); setActiveStep(0); };
+  const cycle = (dir: number) => {
+    const next = (currentIndex + dir + frameworks.length) % frameworks.length;
+    select(frameworks[next].id);
+  };
+
+  // Predicted retention curve for the selected framework: starts at 100%,
+  // front-loads the biggest drop (the "retention valley") and settles at the
+  // framework's headline retention.
+  const curve = useMemo(() => {
+    const steps = currentFramework.steps;
+    const target = retNum(currentFramework.retention);
+    const remaining = 100 - target;
+    const pts = [{ x: "Hook", r: 100 }];
+    let r = 100;
+    steps.forEach((s, i) => {
+      const weight = i === 0 ? 0.28 : i === 1 ? 0.42 : 0.3 / Math.max(1, steps.length - 2);
+      r = Math.max(target, r - remaining * weight);
+      pts.push({ x: s.title, r: Math.round(r) });
+    });
+    pts[pts.length - 1].r = target;
+    return pts;
+  }, [currentFramework]);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -156,10 +176,15 @@ export default function FrameworkEngine() {
           <div className="inline-flex items-center gap-1 bg-primary/20 text-primary border border-primary/20 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider">
             <Sparkles size={10} /> AI Recommendation Match: 96%
           </div>
-          <h2 className="text-xl font-bold text-white">Recommended Framework: Case Study Analysis</h2>
+          <h2 className="text-xl font-bold text-white">Recommended Framework: {recommended.name}</h2>
           <p className="text-xs text-muted-foreground max-w-xl">
-            For topic <strong>"AI Business"</strong>, competitor view velocities indicate viewers crave real-world proofs and step-by-step deconstruction. Avoid generic listicles.
+            For topic <strong>&quot;AI Business&quot;</strong>, competitor view velocities indicate viewers crave real-world proofs and step-by-step deconstruction. Avoid generic listicles.
           </p>
+          {selectedId !== recommended.id && (
+            <button onClick={() => select(recommended.id)} className="mt-1 text-[11px] font-semibold text-primary hover:underline inline-flex items-center gap-1">
+              Use recommended framework <ArrowRight size={12} />
+            </button>
+          )}
         </div>
 
         <div className="flex gap-4 items-center shrink-0">
@@ -167,13 +192,13 @@ export default function FrameworkEngine() {
           <div className="grid grid-cols-2 gap-2.5">
             <StatTile
               label="Predicted Retention"
-              value={currentFramework.retention}
-              tone={toneForScore(retNum(currentFramework.retention))}
+              value={recommended.retention}
+              tone={toneForScore(retNum(recommended.retention))}
               icon={TrendingUp}
             />
             <StatTile
               label="Video Duration"
-              value={currentFramework.length}
+              value={recommended.length}
               icon={Clock}
             />
           </div>
@@ -184,45 +209,54 @@ export default function FrameworkEngine() {
       <div className="space-y-8">
         {/* Row 1: Framework cards */}
         <div className="space-y-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-            <GitFork size={14} /> Available Video Frameworks
-          </h3>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <GitFork size={14} /> Available Video Frameworks
+            </h3>
+            <p className="text-[11px] text-muted-foreground">Selected: <strong className="text-primary">{currentFramework.name}</strong></p>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {frameworks.map((fw) => {
               const isSelected = selectedId === fw.id;
+              const isRecommended = fw.id === recommended.id;
               return (
                 <button
                   key={fw.id}
-                  onClick={() => setSelectedId(fw.id)}
-                  className={`p-4 rounded-3xl bg-card shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] border text-left flex flex-col justify-between gap-6 h-48 relative ${
+                  onClick={() => select(fw.id)}
+                  aria-pressed={isSelected}
+                  className={`group p-4 rounded-3xl text-left flex flex-col justify-between gap-5 h-52 relative border transition-all ${
                     isSelected
-                      ? "border-primary bg-primary/10"
-                      : "border-white/[0.06]"
+                      ? "border-primary bg-primary/10 ring-2 ring-primary/60 shadow-[0_0_40px_-8px_rgba(139,92,246,0.55)]"
+                      : "border-white/[0.06] bg-card shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] hover:border-primary/40 hover:-translate-y-0.5"
                   }`}
                 >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[9px] uppercase font-semibold text-primary bg-primary/20 px-2 py-0.5 rounded border border-primary/20">
-                        FW 0{fw.id}
-                      </span>
-                      <ScoreChip value={retNum(fw.retention)}>
-                        {fw.retention} Ret.
-                      </ScoreChip>
-                    </div>
-                    <h4 className="text-xs font-bold text-white leading-snug line-clamp-1">{fw.name}</h4>
-                    <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed">
-                      {fw.desc}
-                    </p>
+                  {/* Selected / recommended flags */}
+                  <div className="absolute top-3 right-3">
+                    {isSelected ? (
+                      <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide text-white bg-primary px-2 py-1 rounded-full"><CheckCircle2 size={11} /> Selected</span>
+                    ) : isRecommended ? (
+                      <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide text-primary bg-primary/10 border border-primary/25 px-2 py-1 rounded-full"><Sparkles size={10} /> AI Pick</span>
+                    ) : null}
                   </div>
 
-                  <div className="flex justify-between items-center text-[10px] text-muted-foreground pt-2 border-t border-white/5 mt-auto">
-                    <span className="flex items-center gap-1">
-                      <Clock size={10} /> {fw.length}
-                    </span>
-                    <span className="text-primary font-bold group-hover:underline flex items-center gap-0.5">
-                      Select {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />}
-                    </span>
+                  <div className="space-y-2">
+                    <span className="text-[9px] uppercase font-semibold text-primary bg-primary/15 px-2 py-0.5 rounded border border-primary/20">FW 0{fw.id}</span>
+                    <h4 className={`text-sm font-bold leading-snug line-clamp-2 ${isSelected ? "text-white" : "text-white/90"}`}>{fw.name}</h4>
+                    <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed">{fw.desc}</p>
+                  </div>
+
+                  <div className="space-y-2 mt-auto">
+                    <div className="flex items-center justify-between gap-2">
+                      <ScoreChip value={retNum(fw.retention)}>{fw.retention} Ret.</ScoreChip>
+                      <span className="text-[10px] text-muted-foreground flex items-center gap-1"><Clock size={10} /> {fw.length}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px] pt-2 border-t border-white/5">
+                      <span className="text-muted-foreground flex items-center gap-1"><Heart size={10} className="text-primary/70" /> {fw.emotion}</span>
+                      <span className={`font-bold flex items-center gap-1 ${isSelected ? "text-primary" : "text-white/60 group-hover:text-primary"}`}>
+                        {isSelected ? "Active" : "Select"} <ArrowRight size={11} />
+                      </span>
+                    </div>
                   </div>
                 </button>
               );
@@ -230,70 +264,106 @@ export default function FrameworkEngine() {
           </div>
         </div>
 
-        {/* Row 2: Flowchart & Decisional Rules */}
-        <div className="space-y-6">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Interactive Retention Flowchart
-          </h3>
-
-          <div className="p-6 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] space-y-6 relative overflow-hidden">
-            {/* Background pattern */}
-            <div className="absolute top-[-20%] right-[-20%] w-40 h-40 bg-primary/[0.05] rounded-full blur-2xl" />
-
-            <div className="pb-3 border-b border-white/5">
-              <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-                <Zap size={14} className="text-amber-500 animate-bounce" /> {currentFramework.name} Rules
-              </h4>
-              <p className="text-[10px] text-muted-foreground mt-0.5">Custom structured rules recommended by the coach.</p>
+        {/* Row 2: Interactive Retention Flowchart */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <TrendingUp size={14} /> Interactive Retention Flowchart
+            </h3>
+            {/* Framework switcher */}
+            <div className="flex items-center gap-1.5">
+              <button onClick={() => cycle(-1)} aria-label="Previous framework" className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-white/80 hover:text-white hover:border-primary/40 transition"><ChevronLeft size={15} /></button>
+              <span className="text-[11px] font-semibold text-white px-2 min-w-[130px] text-center">{currentIndex + 1} / {frameworks.length} · <span className="text-primary">Switch</span></span>
+              <button onClick={() => cycle(1)} aria-label="Next framework" className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-white/80 hover:text-white hover:border-primary/40 transition"><ChevronRight size={15} /></button>
             </div>
+          </div>
 
-            {/* Strategic Details */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[11px]">
-              <div>
-                <span className="text-[9px] text-muted-foreground uppercase font-semibold block">Hook style</span>
-                <span className="font-bold text-white">{currentFramework.hookStyle}</span>
+          <div className="p-5 md:p-6 rounded-3xl bg-card border border-primary/20 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] space-y-6 relative overflow-hidden">
+            <div className="absolute top-[-20%] right-[-10%] w-56 h-56 bg-primary/[0.06] rounded-full blur-3xl pointer-events-none" />
+
+            {/* Selected framework header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative">
+              <div className="space-y-1.5">
+                <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide text-primary bg-primary/10 border border-primary/25 px-2 py-0.5 rounded-full"><CheckCircle2 size={10} /> Selected Framework</span>
+                <h4 className="text-lg font-bold text-white flex items-center gap-2"><Target size={18} className="text-primary" /> {currentFramework.name}</h4>
+                <p className="text-[11px] text-muted-foreground max-w-xl">{currentFramework.desc}</p>
               </div>
-              <div>
-                <span className="text-[9px] text-muted-foreground uppercase font-semibold block">CTA Trigger</span>
-                <span className="font-bold text-white">{currentFramework.cta}</span>
-              </div>
-              <div>
-                <span className="text-[9px] text-muted-foreground uppercase font-semibold block">Thumbnail Concept</span>
-                <span className="font-bold text-white">{currentFramework.thumbnail}</span>
-              </div>
-              <div>
-                <span className="text-[9px] text-muted-foreground uppercase font-semibold block">Editing Speed</span>
-                <span className="font-bold text-white">{currentFramework.editingStyle}</span>
+              <div className="flex items-center gap-4 shrink-0">
+                <ScoreRing value={retNum(currentFramework.retention)} size={64} caption="Retention" />
+                <StatTile label="Duration" value={currentFramework.length} icon={Clock} />
               </div>
             </div>
 
-            {/* Steps Timeline Flowchart */}
-            <div className="relative pl-4 space-y-4 border-l border-white/10 pt-1">
-              {currentFramework.steps.map((step, index) => (
-                <div key={step.title} className="relative group/step">
-                  {/* Timeline bullet */}
-                  <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-neutral-900 border border-white/30 group-hover/step:border-primary group-hover/step:bg-primary transition-all shadow-[0_0_8px_rgba(255,255,255,0.1)]" />
-                  
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-bold text-white/40 uppercase">Block 0{index+1}</span>
-                      <h5 className="text-xs font-bold text-white">{step.title}</h5>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground">{step.desc}</p>
-                    <p className="text-[9px] text-primary/80 font-medium italic">🎯 {step.tip}</p>
-                  </div>
+            {/* Meta chips */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
+              {([[Zap, "Hook", currentFramework.hookStyle], [Megaphone, "CTA", currentFramework.cta], [ImageIcon, "Thumbnail", currentFramework.thumbnail], [Film, "Editing", currentFramework.editingStyle], [Heart, "Emotion", currentFramework.emotion]] as const).map(([Icon, k, v]) => (
+                <div key={k} className="rounded-xl bg-white/5 border border-white/10 p-2.5">
+                  <span className="text-[9px] uppercase font-semibold text-primary flex items-center gap-1"><Icon size={11} /> {k}</span>
+                  <p className="text-[11px] font-semibold text-white mt-1 leading-snug">{v}</p>
                 </div>
               ))}
             </div>
 
-            <div className="pt-2">
-              <Link
-                href={`/scripts?framework=${currentFramework.id}&topic=AI Business`}
-                className="w-full py-2.5 rounded-full btn-premium text-white font-semibold text-xs transition flex items-center justify-center gap-1.5"
-              >
-                Assemble Script Engine <FileText size={14} />
-              </Link>
+            {/* Predicted retention curve */}
+            <div className="rounded-2xl bg-neutral-950/40 border border-white/5 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground">Predicted Retention Curve</span>
+                <span className="text-[10px] text-primary font-bold">{curve[activeStep + 1]?.x}: {curve[activeStep + 1]?.r}%</span>
+              </div>
+              <div className="h-40 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={curve} margin={{ top: 6, right: 8, left: -22, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="retGlow" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="x" stroke="rgba(255,255,255,0.3)" fontSize={9} interval={0} tickMargin={6} />
+                    <YAxis domain={[Math.max(30, retNum(currentFramework.retention) - 20), 100]} stroke="rgba(255,255,255,0.3)" fontSize={9} />
+                    <Tooltip contentStyle={{ backgroundColor: "#121216", borderColor: "rgba(255,255,255,0.1)", borderRadius: "12px" }} labelStyle={{ color: "#fff", fontWeight: "bold", fontSize: "11px" }} itemStyle={{ color: "hsl(var(--primary))", fontSize: "11px" }} formatter={(v) => [`${v}%`, "Retention"]} />
+                    <ReferenceLine x={curve[activeStep + 1]?.x} stroke="hsl(var(--primary))" strokeDasharray="3 3" />
+                    <Area type="monotone" dataKey="r" stroke="hsl(var(--primary))" strokeWidth={2} fillOpacity={1} fill="url(#retGlow)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </div>
+
+            {/* Step flow nodes — click to inspect */}
+            <div>
+              <span className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground">Story Flow · tap a block</span>
+              <div className="flex flex-col lg:flex-row lg:items-stretch gap-2 mt-2.5">
+                {currentFramework.steps.map((step, index) => {
+                  const on = activeStep === index;
+                  return (
+                    <React.Fragment key={step.title}>
+                      <button onClick={() => setActiveStep(index)}
+                        className={`flex-1 min-w-0 text-left rounded-2xl border p-3 transition-all ${on ? "border-primary bg-primary/10 ring-1 ring-primary/50" : "border-white/10 bg-white/5 hover:border-primary/30"}`}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className={`text-[8px] font-bold uppercase ${on ? "text-primary" : "text-white/40"}`}>Block 0{index + 1}</span>
+                          <span className={`text-[9px] font-bold ${on ? "text-primary" : "text-white/50"}`}>{curve[index + 1]?.r}%</span>
+                        </div>
+                        <h5 className="text-xs font-bold text-white leading-snug">{step.title}</h5>
+                        <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed line-clamp-3">{step.desc}</p>
+                        <p className={`text-[9px] font-medium italic mt-1.5 ${on ? "text-primary" : "text-primary/60"}`}>🎯 {step.tip}</p>
+                      </button>
+                      {index < currentFramework.steps.length - 1 && (
+                        <div className="flex items-center justify-center shrink-0 text-white/25">
+                          <ChevronRight size={16} className="rotate-90 lg:rotate-0" />
+                        </div>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            </div>
+
+            <Link
+              href={`/scripts?framework=${currentFramework.id}&topic=AI Business`}
+              className="w-full py-3 rounded-full btn-premium text-white font-semibold text-xs transition flex items-center justify-center gap-1.5"
+            >
+              Assemble Script with {currentFramework.name} <FileText size={14} />
+            </Link>
           </div>
         </div>
       </div>

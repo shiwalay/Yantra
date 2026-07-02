@@ -1,13 +1,12 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { ArrowRight, Loader2, Lock, Mail } from "lucide-react";
 import { InfluqLogo } from "@/components/logo";
 
 function AuthContent() {
-  const router = useRouter();
   const params = useSearchParams();
   const supabase = createClient();
   const [mode, setMode] = useState<"login" | "signup">(params.get("mode") === "signup" ? "signup" : "login");
@@ -34,7 +33,8 @@ function AuthContent() {
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
       if (data.session) {
-        router.push("/onboarding"); router.refresh();
+        // Full-page nav so the server sees the fresh session cookie (avoids a bounce back to /login).
+        window.location.href = "/onboarding";
       } else {
         setNotice("Account created. Check your email to confirm, then sign in.");
         setMode("login"); setLoading(false);
@@ -42,7 +42,8 @@ function AuthContent() {
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
-      router.push("/dashboard"); router.refresh();
+      // Full-page nav so middleware sees the session cookie immediately and lands on the dashboard.
+      window.location.href = "/dashboard";
     }
   };
 

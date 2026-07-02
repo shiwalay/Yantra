@@ -76,7 +76,7 @@ export async function updateSession(request: NextRequest) {
 
   // Logged-in users shouldn't sit on the auth page.
   if (path === '/login' && user) {
-    url.pathname = '/dashboard';
+    url.pathname = '/strategy';
     return NextResponse.redirect(url);
   }
 

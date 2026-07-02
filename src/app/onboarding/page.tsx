@@ -61,7 +61,7 @@ export default function OnboardingPage() {
         await supabase.from("user_profiles").update({ onboarded: true, creator_type: creatorType, niche, goal }).eq("id", user.id);
       }
     } catch { /* non-blocking */ }
-    setTimeout(() => router.push("/dashboard"), 1100);
+    setTimeout(() => router.push("/strategy"), 1100);
   };
 
   return (

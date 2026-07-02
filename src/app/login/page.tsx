@@ -42,8 +42,8 @@ function AuthContent() {
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
-      // Full-page nav so middleware sees the session cookie immediately and lands on the dashboard.
-      window.location.href = "/dashboard";
+      // Full-page nav so middleware sees the session cookie immediately and lands on Personal Strategy.
+      window.location.href = "/strategy";
     }
   };
 

@@ -11,7 +11,8 @@ if (!conn) {
   process.exit(1);
 }
 
-const sql = fs.readFileSync('supabase/migrations/0000_admin_os_schema.sql', 'utf8');
+const file = process.argv[2] || 'supabase/migrations/0000_admin_os_schema.sql';
+const sql = fs.readFileSync(file, 'utf8');
 const client = new pg.Client({ connectionString: conn, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 15000 });
 
 try {

@@ -12,7 +12,18 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      // First-time users (incl. Google signups) go through onboarding once.
+      let dest = next;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("user_profiles")
+          .select("onboarded")
+          .eq("id", user.id)
+          .single();
+        if (profile && profile.onboarded === false) dest = "/onboarding";
+      }
+      return NextResponse.redirect(`${origin}${dest}`);
     }
     console.error("OAuth exchange error:", error.message);
   }

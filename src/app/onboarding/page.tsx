@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Check, Loader2, Lock, Shield, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createClient } from "@/utils/supabase/client";
 
 const YoutubeIcon = ({ size = 18, className = "" }: { size?: number; className?: string }) => (
   <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" className={className}>
@@ -38,10 +39,17 @@ export default function OnboardingPage() {
 
   const canContinue = creatorType && niche && goal;
 
-  const complete = () => {
+  const complete = async () => {
     setShowOauthModal(false);
     setFinishing(true);
     localStorage.setItem("influq_onboarded", "true");
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("user_profiles").update({ onboarded: true }).eq("id", user.id);
+      }
+    } catch { /* non-blocking */ }
     setTimeout(() => router.push("/dashboard"), 1100);
   };
 

@@ -80,7 +80,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
 
   // Marketing, onboarding, and the entire /admin area render outside the app
   // sidebar shell (admin has its own layout).
-  const isPublicPage = pathname === "/" || pathname === "/onboarding" || pathname.startsWith("/admin");
+  const isPublicPage = pathname === "/" || pathname === "/onboarding" || pathname === "/login" || pathname.startsWith("/admin");
 
   if (isPublicPage) {
     return <div className="w-full min-h-screen bg-background text-foreground select-none">{children}</div>;

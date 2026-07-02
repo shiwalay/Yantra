@@ -100,7 +100,16 @@ export async function POST(req: Request) {
 
   try {
     let raw: string | null | undefined;
-    if (hasKey(process.env.OPENAI_API_KEY)) {
+    // Gemini is the primary engine; OpenAI is the fallback.
+    if (hasKey(process.env.GEMINI_API_KEY)) {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: buildPrompt(params),
+        config: { responseMimeType: 'application/json' },
+      });
+      raw = response.text;
+    } else {
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
@@ -108,13 +117,6 @@ export async function POST(req: Request) {
         messages: [{ role: 'user', content: buildPrompt(params) }],
       });
       raw = completion.choices[0]?.message?.content;
-    } else {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: buildPrompt(params),
-      });
-      raw = response.text;
     }
 
     const parsed = raw ? JSON.parse(raw) : null;

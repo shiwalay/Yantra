@@ -40,7 +40,10 @@ const YoutubeIcon = ({ size = 18, className = "" }: { size?: number; className?:
   </svg>
 );
 
-const navItems = [
+type NavItem = { name: string; href: string; icon: React.ElementType; highlight?: boolean };
+
+const navItems: NavItem[] = [
+  { name: "Personal Strategy", href: "/strategy", icon: Compass, highlight: true },
   { name: "Command Center", href: "/dashboard", icon: LayoutDashboard },
   { name: "Find Winning Topics", href: "/research", icon: Search },
   { name: "Create Videos", href: "/scripts", icon: FileText },
@@ -50,6 +53,7 @@ const navItems = [
 
 // Curated items for mobile bottom nav (max 5)
 const mobileNavItems = [
+  { name: "Strategy", href: "/strategy", icon: Compass },
   { name: "Command Center", href: "/dashboard", icon: LayoutDashboard },
   { name: "Find Topics", href: "/research", icon: Search },
   { name: "Create", href: "/scripts", icon: FileText },
@@ -133,7 +137,9 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
                   className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all overflow-hidden ${
                     isActive
                       ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      : item.highlight
+                        ? "text-white bg-gradient-to-r from-primary/15 to-secondary/10 border border-primary/25 hover:from-primary/25"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                   title={item.name}
                 >
@@ -147,11 +153,14 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
                   <Icon
                     size={20}
                     className={`shrink-0 transition-colors ${
-                      isActive ? "text-primary" : "group-hover:text-foreground"
+                      isActive || item.highlight ? "text-primary" : "group-hover:text-foreground"
                     }`}
                   />
-                  <span className={`whitespace-nowrap transition-opacity duration-200 ${isSidebarHovered ? "opacity-100 lg:opacity-100" : "opacity-0 lg:opacity-100"}`}>
+                  <span className={`whitespace-nowrap transition-opacity duration-200 flex items-center gap-2 ${isSidebarHovered ? "opacity-100 lg:opacity-100" : "opacity-0 lg:opacity-100"}`}>
                     {item.name}
+                    {item.highlight && !isActive && (
+                      <span className="text-[8px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-primary text-white">New</span>
+                    )}
                   </span>
                 </Link>
               );

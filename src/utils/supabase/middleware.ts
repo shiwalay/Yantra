@@ -42,7 +42,7 @@ export async function updateSession(request: NextRequest) {
   const path = url.pathname;
 
   // App routes that require an authenticated user (real session, not localStorage).
-  const APP_ROUTES = ['/dashboard', '/research', '/scripts', '/seo', '/analytics', '/thumbnails', '/frameworks', '/coach', '/billing', '/onboarding'];
+  const APP_ROUTES = ['/dashboard', '/strategy', '/research', '/scripts', '/seo', '/analytics', '/thumbnails', '/frameworks', '/coach', '/billing', '/onboarding'];
   const isAppRoute = APP_ROUTES.some((r) => path === r || path.startsWith(r + '/'));
 
   // Admin area — requires the superadmin role.

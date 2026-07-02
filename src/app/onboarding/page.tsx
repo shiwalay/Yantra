@@ -40,6 +40,16 @@ export default function OnboardingPage() {
 
   const canContinue = creatorType && niche && goal;
 
+  // Persist the profile selections (also called before the YouTube-connect
+  // path so they aren't lost when the user connects instead of skipping).
+  const saveProfile = async () => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) await supabase.from("user_profiles").update({ creator_type: creatorType, niche, goal }).eq("id", user.id);
+    } catch { /* non-blocking */ }
+  };
+
   const complete = async () => {
     setShowOauthModal(false);
     setFinishing(true);
@@ -48,7 +58,7 @@ export default function OnboardingPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await supabase.from("user_profiles").update({ onboarded: true }).eq("id", user.id);
+        await supabase.from("user_profiles").update({ onboarded: true, creator_type: creatorType, niche, goal }).eq("id", user.id);
       }
     } catch { /* non-blocking */ }
     setTimeout(() => router.push("/dashboard"), 1100);
@@ -134,7 +144,7 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
-                <button disabled={!canContinue} onClick={() => setStep(2)}
+                <button disabled={!canContinue} onClick={() => { void saveProfile(); setStep(2); }}
                   className="btn-premium w-full mt-auto py-2.5 rounded-xl disabled:opacity-40 disabled:saturate-50 text-white font-semibold text-xs flex items-center justify-center gap-1.5">
                   Continue <ArrowRight size={14} />
                 </button>

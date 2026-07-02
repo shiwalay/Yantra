@@ -4,10 +4,10 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Sparkles, ArrowRight, FileText, Image as ImageIcon, Search, Globe,
-  TrendingUp, Eye, Users, Video, Play, Film, Clock,
+  TrendingUp, Eye, Users, Video, Play, Film, Clock, Loader2, Target, Layers, Type,
 } from "lucide-react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { MetricAreaCard, GradientCard, ActivityRow, CategoryBar } from "@/components/brink";
+import { MetricAreaCard, ActivityRow, CategoryBar } from "@/components/brink";
 import { createClient } from "@/utils/supabase/client";
 
 function fmt(n: number): string {
@@ -41,9 +41,6 @@ const itemVariants: Variants = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } },
 };
 
-const viewsData = [{ v: 20 }, { v: 32 }, { v: 26 }, { v: 44 }, { v: 38 }, { v: 56 }, { v: 64 }, { v: 72 }];
-const subsData = [{ v: 30 }, { v: 34 }, { v: 31 }, { v: 40 }, { v: 38 }, { v: 33 }, { v: 42 }, { v: 39 }];
-
 const ACTIVITY = [
   { icon: FileText, title: "Script generated — Cold Email for Agencies", time: "Today, 2:14 PM", amount: "+1 draft", positive: true, color: "#8B5CF6" },
   { icon: ImageIcon, title: "Thumbnail scored 87/100", time: "Today, 11:02 AM", amount: "High CTR", positive: true, color: "#22D3EE" },
@@ -59,28 +56,50 @@ const CATEGORIES = [
   { icon: Film, label: "Vlogs", value: 30, color: "#F472B6", caption: "6 videos published" },
 ];
 
-function AliveLoadingState({ onComplete }: { onComplete: () => void }) {
-  const [step, setStep] = useState(0);
-  const steps = ["Analyzing YouTube...", "Checking 1,293 videos...", "Finding content gaps...", "Studying competitors...", "Building your strategy...", "Done."];
-  useEffect(() => {
-    if (step < steps.length - 1) {
-      const t = setTimeout(() => setStep((s) => s + 1), 800);
-      return () => clearTimeout(t);
-    }
-    const t = setTimeout(() => onComplete(), 600);
-    return () => clearTimeout(t);
-  }, [step, onComplete]);
+type Strategy = {
+  angle: string; framework: string; targetAudience: string; whyItWorks: string;
+  titles: string[]; hook: string; thumbnailIdea: string; cta: string; firstStep: string;
+};
+
+function StratField({ icon: Icon, label, children }: { icon: React.ElementType; label: string; children: React.ReactNode }) {
   return (
-    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-      className="w-full mt-4 p-4 rounded-2xl bg-card border border-primary/20 flex flex-col gap-3">
-      <div className="flex items-center justify-between text-xs font-semibold text-primary">
-        <span className="flex items-center gap-2"><Sparkles size={14} className={step < steps.length - 1 ? "animate-pulse" : ""} /> {steps[step]}</span>
-        <span>{Math.round((step / (steps.length - 1)) * 100)}%</span>
+    <div className="rounded-2xl bg-white/5 border border-white/5 p-3.5">
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5 mb-1"><Icon size={12} /> {label}</p>
+      <p className="text-xs text-white leading-relaxed">{children}</p>
+    </div>
+  );
+}
+
+function StrategyView({ strategy, onCreateScript }: { strategy: Strategy; onCreateScript: () => void }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+      className="rounded-3xl bg-card border border-white/[0.06] p-6 md:p-7 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] space-y-5">
+      <div className="flex items-center gap-2">
+        <span className="w-8 h-8 rounded-lg bg-primary/15 text-primary flex items-center justify-center"><Sparkles size={16} /></span>
+        <h3 className="text-base font-semibold text-white">Your Video Strategy</h3>
+        <span className="ml-auto text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">Tailored to your channel</span>
       </div>
-      <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-        <motion.div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
-          initial={{ width: "0%" }} animate={{ width: `${(step / (steps.length - 1)) * 100}%` }} transition={{ ease: "easeInOut" }} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <StratField icon={Target} label="Angle">{strategy.angle}</StratField>
+        <StratField icon={Layers} label="Framework">{strategy.framework}</StratField>
+        <StratField icon={Users} label="Target audience">{strategy.targetAudience}</StratField>
+        <StratField icon={Sparkles} label="Why it works">{strategy.whyItWorks}</StratField>
       </div>
+      <div>
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex items-center gap-1.5"><Type size={12} /> Title ideas</p>
+        <div className="space-y-1.5">
+          {strategy.titles?.map((t, i) => (<p key={i} className="text-sm text-white"><span className="text-primary font-semibold">{i + 1}.</span> {t}</p>))}
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <StratField icon={Sparkles} label="Hook">{strategy.hook}</StratField>
+        <StratField icon={ImageIcon} label="Thumbnail idea">{strategy.thumbnailIdea}</StratField>
+        <StratField icon={ArrowRight} label="Call to action">{strategy.cta}</StratField>
+        <StratField icon={Play} label="First step">{strategy.firstStep}</StratField>
+      </div>
+      <button onClick={onCreateScript} className="btn-premium px-6 py-3 rounded-full text-white font-semibold text-sm flex items-center justify-center gap-2">
+        Create the full script <ArrowRight size={16} />
+      </button>
     </motion.div>
   );
 }
@@ -88,7 +107,8 @@ function AliveLoadingState({ onComplete }: { onComplete: () => void }) {
 export default function CommandCenter() {
   const router = useRouter();
   const [topicInput, setTopicInput] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [genLoading, setGenLoading] = useState(false);
+  const [strategy, setStrategy] = useState<Strategy | null>(null);
   const [yt, setYt] = useState<YTConn | null>(null);
   const [ytLoaded, setYtLoaded] = useState(false);
   const [ytError, setYtError] = useState<string | null>(null);
@@ -106,12 +126,25 @@ export default function CommandCenter() {
       .then(({ data }) => { setYt(data as YTConn | null); setYtLoaded(true); });
   }, []);
 
-  const handleGenerate = (e: React.FormEvent) => {
+  const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!topicInput.trim()) return;
-    setIsGenerating(true);
+    if (!topicInput.trim() || genLoading) return;
+    setGenLoading(true);
+    setStrategy(null);
+    try {
+      const res = await fetch("/api/ai/strategy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: topicInput }),
+      });
+      const data = await res.json();
+      if (data.strategy) setStrategy(data.strategy as Strategy);
+    } catch {
+      /* keep the bar usable; user can retry */
+    } finally {
+      setGenLoading(false);
+    }
   };
-  const onGenerationComplete = () => router.push(`/scripts?topic=${encodeURIComponent(topicInput)}`);
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-6xl mx-auto space-y-6 pb-16">
@@ -122,17 +155,30 @@ export default function CommandCenter() {
             <div className="flex-1 w-full flex items-center px-3 py-1.5">
               <Sparkles className="text-muted-foreground shrink-0 mr-3" size={20} />
               <input type="text" placeholder="What video do you want to make?" value={topicInput}
-                onChange={(e) => setTopicInput(e.target.value)} disabled={isGenerating}
+                onChange={(e) => setTopicInput(e.target.value)} disabled={genLoading}
                 className="w-full bg-transparent border-none outline-none text-foreground text-base md:text-lg font-medium placeholder:text-muted-foreground/50 disabled:opacity-50" />
             </div>
-            <button type="submit" disabled={isGenerating || !topicInput.trim()}
+            <button type="submit" disabled={genLoading || !topicInput.trim()}
               className="btn-premium w-full md:w-auto px-6 py-3 rounded-xl disabled:opacity-50 disabled:saturate-50 text-white font-semibold shrink-0 flex items-center justify-center gap-2">
-              Generate Strategy <ArrowRight size={18} />
+              {genLoading ? (<><Loader2 size={18} className="animate-spin" /> Building strategy…</>) : (<>Generate Strategy <ArrowRight size={18} /></>)}
             </button>
           </div>
         </form>
-        <AnimatePresence>{isGenerating && <AliveLoadingState onComplete={onGenerationComplete} />}</AnimatePresence>
+        {!strategy && !genLoading && (
+          <p className="mt-2 px-1 text-xs text-muted-foreground">
+            Get an instant, personalized strategy for any idea — tailored to your creator profile and goal.
+          </p>
+        )}
       </motion.div>
+
+      {/* Generated strategy */}
+      <AnimatePresence>
+        {strategy && (
+          <motion.div variants={itemVariants} key="strategy">
+            <StrategyView strategy={strategy} onCreateScript={() => router.push(`/scripts?topic=${encodeURIComponent(topicInput)}`)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* YouTube connect error surfacing */}
       {ytError && (
@@ -165,21 +211,14 @@ export default function CommandCenter() {
         </motion.div>
       )}
 
+      {/* Real channel dashboard — only once a YouTube channel is connected */}
+      {yt && (
+        <>
       {/* Row 1: metrics */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {yt ? (
-          <>
-            <MetricAreaCard label="Total Views" value={fmt(yt.view_count)} delta={`+${fmt(yt.analytics?.totals.views ?? 0)}`} up color="#34D399" icon={Eye} data={(yt.analytics?.series ?? []).map((d) => ({ v: d.views }))} />
-            <MetricAreaCard label="Subscribers" value={fmt(yt.subscriber_count)} delta={`+${fmt(yt.analytics?.totals.subs ?? 0)}`} up color="#22D3EE" icon={Users} data={(yt.analytics?.series ?? []).map((d) => ({ v: d.subs }))} />
-            <MetricAreaCard label="Watch Hours · 28d" value={fmt(Math.round((yt.analytics?.totals.minutes ?? 0) / 60))} delta="28d" up color="#8B5CF6" icon={Clock} data={(yt.analytics?.series ?? []).map((d) => ({ v: d.minutes }))} />
-          </>
-        ) : (
-          <>
-            <MetricAreaCard label="Views · sample" value="248.7K" delta="+12%" up color="#34D399" icon={Eye} data={viewsData} />
-            <MetricAreaCard label="Subscribers · sample" value="+1,240" delta="-4%" up={false} color="#F87171" icon={Users} data={subsData} />
-            <GradientCard label="Est. Monthly Revenue" value="$4,827" last4="4827" expiry="03/26" holder="Sample data" badge="Demo" />
-          </>
-        )}
+        <MetricAreaCard label="Total Views" value={fmt(yt.view_count)} delta={`+${fmt(yt.analytics?.totals.views ?? 0)}`} up color="#34D399" icon={Eye} data={(yt.analytics?.series ?? []).map((d) => ({ v: d.views }))} />
+        <MetricAreaCard label="Subscribers" value={fmt(yt.subscriber_count)} delta={`+${fmt(yt.analytics?.totals.subs ?? 0)}`} up color="#22D3EE" icon={Users} data={(yt.analytics?.series ?? []).map((d) => ({ v: d.subs }))} />
+        <MetricAreaCard label="Watch Hours · 28d" value={fmt(Math.round((yt.analytics?.totals.minutes ?? 0) / 60))} delta="28d" up color="#8B5CF6" icon={Clock} data={(yt.analytics?.series ?? []).map((d) => ({ v: d.minutes }))} />
       </motion.div>
 
       {/* Row 2: activity + categories */}
@@ -228,6 +267,8 @@ export default function CommandCenter() {
           </div>
         </div>
       </motion.div>
+        </>
+      )}
     </motion.div>
   );
 }

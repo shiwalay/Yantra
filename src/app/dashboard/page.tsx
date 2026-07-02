@@ -8,6 +8,29 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { MetricAreaCard, GradientCard, ActivityRow, CategoryBar } from "@/components/brink";
+import { createClient } from "@/utils/supabase/client";
+
+function fmt(n: number): string {
+  if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B";
+  if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "K";
+  return String(n);
+}
+function timeAgo(iso: string): string {
+  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 3600) return `${Math.max(1, Math.floor(s / 60))}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+}
+
+type YTConn = {
+  channel_title: string;
+  subscriber_count: number;
+  view_count: number;
+  video_count: number;
+  last_synced_at: string | null;
+  analytics: { series: { day: string; views: number; minutes: number; subs: number }[]; totals: { views: number; minutes: number; subs: number }; avgRetention: number } | null;
+};
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -66,8 +89,19 @@ export default function CommandCenter() {
   const router = useRouter();
   const [topicInput, setTopicInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [yt, setYt] = useState<YTConn | null>(null);
+  const [ytLoaded, setYtLoaded] = useState(false);
 
   // Auth is enforced by middleware (real Supabase session) — no localStorage gate.
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("youtube_connections")
+      .select("channel_title,subscriber_count,view_count,video_count,last_synced_at,analytics")
+      .maybeSingle()
+      .then(({ data }) => { setYt(data as YTConn | null); setYtLoaded(true); });
+  }, []);
 
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,11 +131,42 @@ export default function CommandCenter() {
         <AnimatePresence>{isGenerating && <AliveLoadingState onComplete={onGenerationComplete} />}</AnimatePresence>
       </motion.div>
 
-      {/* Row 1: metrics + gradient balance */}
+      {/* YouTube connection status / connect CTA */}
+      {ytLoaded && (
+        <motion.div variants={itemVariants}>
+          {yt ? (
+            <div className="flex items-center justify-between rounded-2xl bg-card border border-white/[0.06] px-4 py-2.5 text-xs">
+              <span className="text-muted-foreground flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-success" /> Connected:{" "}
+                <strong className="text-white">{yt.channel_title}</strong>
+                {yt.last_synced_at && <span className="text-muted-foreground/70">· synced {timeAgo(yt.last_synced_at)}</span>}
+              </span>
+              <a href="/api/youtube/connect" className="text-primary font-semibold hover:underline shrink-0">Refresh</a>
+            </div>
+          ) : (
+            <a href="/api/youtube/connect" className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-primary/15 to-transparent border border-primary/20 px-4 py-3 group">
+              <span className="text-sm text-white font-semibold flex items-center gap-2"><Play size={16} className="text-primary" /> Connect your YouTube channel for real analytics</span>
+              <span className="text-primary text-xs font-semibold group-hover:translate-x-0.5 transition">Connect &rarr;</span>
+            </a>
+          )}
+        </motion.div>
+      )}
+
+      {/* Row 1: metrics */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <MetricAreaCard label="Views · Last 30 Days" value="248.7K" delta="+12%" up color="#34D399" icon={Eye} data={viewsData} />
-        <MetricAreaCard label="Subscribers · Last 30 Days" value="+1,240" delta="-4%" up={false} color="#F87171" icon={Users} data={subsData} />
-        <GradientCard label="Est. Monthly Revenue" value="$4,827" last4="4827" expiry="03/26" holder="Swapnil B." badge="Growth Pro" />
+        {yt ? (
+          <>
+            <MetricAreaCard label="Total Views" value={fmt(yt.view_count)} delta={`+${fmt(yt.analytics?.totals.views ?? 0)}`} up color="#34D399" icon={Eye} data={(yt.analytics?.series ?? []).map((d) => ({ v: d.views }))} />
+            <MetricAreaCard label="Subscribers" value={fmt(yt.subscriber_count)} delta={`+${fmt(yt.analytics?.totals.subs ?? 0)}`} up color="#22D3EE" icon={Users} data={(yt.analytics?.series ?? []).map((d) => ({ v: d.subs }))} />
+            <MetricAreaCard label="Watch Hours · 28d" value={fmt(Math.round((yt.analytics?.totals.minutes ?? 0) / 60))} delta="28d" up color="#8B5CF6" icon={Clock} data={(yt.analytics?.series ?? []).map((d) => ({ v: d.minutes }))} />
+          </>
+        ) : (
+          <>
+            <MetricAreaCard label="Views · sample" value="248.7K" delta="+12%" up color="#34D399" icon={Eye} data={viewsData} />
+            <MetricAreaCard label="Subscribers · sample" value="+1,240" delta="-4%" up={false} color="#F87171" icon={Users} data={subsData} />
+            <GradientCard label="Est. Monthly Revenue" value="$4,827" last4="4827" expiry="03/26" holder="Sample data" badge="Demo" />
+          </>
+        )}
       </motion.div>
 
       {/* Row 2: activity + categories */}

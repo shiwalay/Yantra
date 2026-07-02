@@ -152,7 +152,7 @@ export default function OnboardingPage() {
                 </div>
 
                 <div className="space-y-4">
-                  <button onClick={() => setShowOauthModal(true)}
+                  <button onClick={() => { window.location.href = "/api/youtube/connect"; }}
                     className="w-full py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition flex items-center justify-center gap-2">
                     <YoutubeIcon size={16} /> Connect via YouTube OAuth
                   </button>

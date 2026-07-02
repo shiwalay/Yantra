@@ -91,10 +91,13 @@ export default function CommandCenter() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [yt, setYt] = useState<YTConn | null>(null);
   const [ytLoaded, setYtLoaded] = useState(false);
+  const [ytError, setYtError] = useState<string | null>(null);
 
   // Auth is enforced by middleware (real Supabase session) — no localStorage gate.
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("youtube") === "error") setYtError(params.get("reason") || "unknown");
     const supabase = createClient();
     supabase
       .from("youtube_connections")
@@ -130,6 +133,16 @@ export default function CommandCenter() {
         </form>
         <AnimatePresence>{isGenerating && <AliveLoadingState onComplete={onGenerationComplete} />}</AnimatePresence>
       </motion.div>
+
+      {/* YouTube connect error surfacing */}
+      {ytError && (
+        <motion.div variants={itemVariants} className="rounded-2xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-xs text-destructive">
+          <strong>YouTube connect failed</strong> (reason: {ytError}).{" "}
+          {ytError === "token" && "Server couldn't exchange the code — set GOOGLE_CLIENT_SECRET in Vercel and redeploy."}
+          {ytError === "state" && "Security check failed — try connecting again."}
+          {ytError === "channel" && "No YouTube channel found on that Google account (or the Data API isn't enabled)."}
+        </motion.div>
+      )}
 
       {/* YouTube connection status / connect CTA */}
       {ytLoaded && (

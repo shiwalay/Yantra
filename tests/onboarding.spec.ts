@@ -1,54 +1,37 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Phase 1 & 2: Onboarding Flow', () => {
-  test('Complete end-to-end onboarding workflow', async ({ page }) => {
-    // 1. Navigate to onboarding
+test.describe('Onboarding Flow (simplified 2-step)', () => {
+  test('Complete onboarding: About You → Connect → Dashboard', async ({ page }) => {
     await page.goto('http://localhost:3000/onboarding');
 
-    // Wait for the Profile step to render
+    // Step 1 — About You (all selections on one screen)
     await expect(page.getByText('Tell us about yourself')).toBeVisible();
-
-    // 2. Select Creator Type
     await page.getByRole('button', { name: 'Solo Creator' }).click();
-    
-    // 3. Select Niche
     await page.getByRole('button', { name: 'Tech & AI' }).click();
-
-    // 4. Continue to Goals step
+    await page.getByRole('button', { name: 'Views & Reach' }).click();
     await page.getByRole('button', { name: 'Continue' }).click();
 
-    // Verify Goals step is visible
-    await expect(page.getByText('What is your primary goal?')).toBeVisible();
+    // Step 2 — Connect
+    await expect(page.getByText('Connect your YouTube channel')).toBeVisible();
+    await page.getByRole('button', { name: /Connect via YouTube OAuth/i }).click();
 
-    // 5. Select Goal
-    await page.getByRole('button', { name: 'Maximize Views & Reach' }).click();
-
-    // 6. Continue to Connect step
-    await page.getByRole('button', { name: 'Continue' }).click();
-
-    // Verify Connection step is visible
-    await expect(page.getByText('Connect Your YouTube Channel')).toBeVisible();
-
-    // 7. Trigger OAuth
-    await page.getByRole('button', { name: /Connect Channel/i }).click();
-
-    // Verify OAuth Modal opens
+    // OAuth consent modal
     await expect(page.getByText('Google Accounts Auth')).toBeVisible();
-
-    // 8. Allow access
     await page.getByRole('button', { name: 'Allow' }).click();
 
-    // Verify Audit step is visible and runs
-    await expect(page.getByText('Running Channel Growth Audit')).toBeVisible({ timeout: 5000 });
+    // Redirects to the dashboard after a short setup
+    await expect(page).toHaveURL(/.*\/dashboard/, { timeout: 5000 });
+  });
 
-    // 9. Wait for the audit to finish
-    // Audit has a setInterval that adds progress. Max duration is a few seconds.
-    await expect(page.getByText('Onboarding Complete!')).toBeVisible({ timeout: 15000 });
+  test('Skip connection (Demo Mode) also completes onboarding', async ({ page }) => {
+    await page.goto('http://localhost:3000/onboarding');
 
-    // 10. Finish onboarding
-    await page.getByRole('button', { name: /Enter Growth OS Dashboard/i }).click();
+    await page.getByRole('button', { name: 'Coach / Consultant' }).click();
+    await page.getByRole('button', { name: 'Business & Finance' }).click();
+    await page.getByRole('button', { name: 'Leads & Sales' }).click();
+    await page.getByRole('button', { name: 'Continue' }).click();
 
-    // Verify navigation to dashboard
-    await expect(page).toHaveURL(/.*\/dashboard/);
+    await page.getByRole('button', { name: /Skip for now/i }).click();
+    await expect(page).toHaveURL(/.*\/dashboard/, { timeout: 5000 });
   });
 });

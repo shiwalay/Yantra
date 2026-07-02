@@ -20,22 +20,22 @@ test.describe('Phase 10: Dashboard Flow', () => {
     // Navigate to dashboard (Command Center)
     await page.goto('http://localhost:3000/dashboard');
 
-    // Verify Personalized Hero
-    await expect(page.getByText('Good Morning')).toBeVisible();
-    await expect(page.getByText("Today's Growth Score:")).toBeVisible();
-
-    // Verify Single Input Engine
+    // Verify the create bar (Single Input Engine)
     await expect(page.getByPlaceholder('What video do you want to make?')).toBeVisible();
     await expect(page.getByRole('button', { name: /Generate Strategy/i })).toBeVisible();
 
-    // Verify Today's Mission checklist loads
-    await expect(page.getByRole('heading', { name: "Today's Mission" })).toBeVisible();
-    await expect(page.getByText('Find Winning Topic', { exact: true })).toBeVisible();
-    await expect(page.getByText('Write Script', { exact: true })).toBeVisible();
-    await expect(page.getByText('Design Thumbnail')).toBeVisible();
+    // Verify the Brink metric cards + gradient balance card
+    await expect(page.getByText('Views · Last 30 Days')).toBeVisible();
+    await expect(page.getByText('Est. Monthly Revenue')).toBeVisible();
+    await expect(page.getByText('$4,827')).toBeVisible();
 
-    // Verify Outcome Metrics load
-    await expect(page.getByText('Estimated Growth Impact')).toBeVisible();
-    await expect(page.getByText('+145')).toBeVisible();
+    // Verify Recent Activity + Content Categories panels
+    await expect(page.getByRole('heading', { name: 'Recent Activity' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Content Categories' })).toBeVisible();
+    await expect(page.getByText('Tutorials')).toBeVisible();
+
+    // Verify Today's Mission loads
+    await expect(page.getByRole('heading', { name: "Today's Mission" })).toBeVisible();
+    await expect(page.getByText('Design Thumbnail')).toBeVisible();
   });
 });

@@ -14,6 +14,7 @@ import {
   Star
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { GradientBorderCard, GradientBadge } from "@/components/gradient";
 
 export default function BillingPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
@@ -99,10 +100,10 @@ export default function BillingPage() {
       {/* Premium Hero */}
       <div className="text-center space-y-4">
         <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold uppercase tracking-widest shadow-sm">
-          <Sparkles size={12} className="animate-pulse" /> The Ultimate YouTube Growth OS
+          <Sparkles size={12} /> The Ultimate YouTube Growth OS
         </div>
         <h2 className="text-[clamp(32px,5vw,56px)] font-black text-foreground tracking-tight leading-tight">
-          One Outcome. <span className="text-primary">One Price.</span>
+          One Outcome. <span className="text-gradient-brand">One Price.</span>
         </h2>
         <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
           We don't limit features. You get the complete AI operating system designed to turn your channel into a predictable revenue system.
@@ -150,17 +151,26 @@ export default function BillingPage() {
       {/* The Single Pricing Card */}
       <div className="max-w-4xl mx-auto mt-12 relative group">
         {/* Deep background glow */}
-        <div className="absolute -inset-4 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-[40px] blur-3xl opacity-50 pointer-events-none" />
+        <div className="absolute -inset-4 bg-gradient-to-br from-primary/[0.05] to-secondary/[0.04] rounded-[40px] blur-3xl opacity-50 pointer-events-none" />
         
-        <div className="relative p-8 md:p-12 rounded-[32px] bg-card border border-primary/30 shadow-[0_20px_60px_hsl(var(--primary)/0.2)] overflow-hidden flex flex-col lg:flex-row gap-12">
-          
+        <GradientBorderCard
+          gradient="violet"
+          glow="rgba(139,92,246,0.55)"
+          radius={28}
+          thickness={2}
+          innerClassName="p-8 md:p-12 overflow-hidden flex flex-col lg:flex-row gap-12"
+        >
+
           {/* Decorative radial gradient inside card */}
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
 
           {/* Left Column: Price & CTA */}
           <div className="flex-1 flex flex-col justify-center space-y-6 lg:border-r border-border/40 lg:pr-12 relative z-10">
             <div>
-              <h3 className="text-2xl font-black text-foreground uppercase tracking-widest flex items-center gap-2">
+              <div className="mb-4">
+                <GradientBadge gradient="warm">Best Value</GradientBadge>
+              </div>
+              <h3 className="text-2xl font-semibold text-foreground uppercase tracking-widest flex items-center gap-2">
                 <Globe className="text-primary" size={24} /> AI Growth OS
               </h3>
               <p className="text-sm text-muted-foreground mt-2 font-medium">
@@ -170,7 +180,7 @@ export default function BillingPage() {
 
             <div className="py-6 border-y border-border/30">
               <div className="flex items-baseline gap-2">
-                <span className="text-6xl font-black text-foreground tracking-tighter">{displayPrice}</span>
+                <span className="text-6xl font-semibold text-foreground tracking-tighter">{displayPrice}</span>
                 <span className="text-sm font-semibold text-muted-foreground">/ month</span>
               </div>
               <div className="min-h-[24px] mt-2">
@@ -194,7 +204,7 @@ export default function BillingPage() {
                 setCheckoutModalOpen(true);
                 setPaymentSuccess(false);
               }}
-              className="w-full py-4 rounded-[16px] bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm transition-all flex items-center justify-center gap-2 shadow-[0_8px_30px_hsl(var(--primary)/0.4)] hover:-translate-y-1 active:scale-95"
+              className="w-full py-4 rounded-full btn-premium text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 hover:-translate-y-1 active:scale-95"
             >
               Start Creating Now <ArrowRight size={18} />
             </button>
@@ -246,7 +256,7 @@ export default function BillingPage() {
             </div>
           </div>
 
-        </div>
+        </GradientBorderCard>
       </div>
 
       {/* Checkout Simulator Modal */}
@@ -257,7 +267,7 @@ export default function BillingPage() {
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="w-full max-w-md p-8 rounded-[32px] bg-card border border-border/50 shadow-2xl relative space-y-6"
+              className="w-full max-w-md p-8 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] relative space-y-6"
             >
               <button
                 onClick={() => setCheckoutModalOpen(false)}
@@ -267,7 +277,7 @@ export default function BillingPage() {
               </button>
 
               <div className="pb-4 border-b border-border/30">
-                <span className="text-[10px] uppercase font-black text-primary flex items-center gap-1.5 tracking-wider"><Lock size={12} /> Secure Checkout Simulator</span>
+                <span className="text-[10px] uppercase font-semibold text-primary flex items-center gap-1.5 tracking-wider"><Lock size={12} /> Secure Checkout Simulator</span>
                 <h3 className="text-2xl font-bold text-foreground mt-2">AI Growth OS</h3>
                 <p className="text-sm font-semibold text-muted-foreground mt-1">
                   {isAnnual ? billedAnnually : displayPrice} 
@@ -308,7 +318,7 @@ export default function BillingPage() {
                   <button
                     onClick={handleProcessPayment}
                     disabled={processing}
-                    className="w-full py-4 rounded-[16px] bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm transition-all flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(139,92,246,0.4)] disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="w-full py-4 rounded-full btn-premium text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     {processing ? (
                       <>
@@ -328,7 +338,7 @@ export default function BillingPage() {
                     <Check size={40} strokeWidth={3} />
                   </div>
                   <div>
-                    <h4 className="text-xl font-black text-foreground">Welcome to the OS</h4>
+                    <h4 className="text-xl font-semibold text-foreground">Welcome to the OS</h4>
                     <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
                       Payment successful. Your AI Capacity has been fully restored and your agency limits have been unlocked.
                     </p>

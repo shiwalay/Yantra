@@ -17,6 +17,8 @@ import {
   TrendingUp
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ScoreRing, IndicatorBar, StatTile, Tabs, ScoreChip, toneForScore } from "@/components/vidiq";
+import { GradientBorderCard } from "@/components/gradient";
 
 function SeoEngineContent() {
   const searchParams = useSearchParams();
@@ -104,46 +106,63 @@ Vote below: Are you currently running a channel or business in this space?
 
 Leave a comment below and I'll personally reply to the first 50 creators with a custom roadmap! 👇`;
 
+  // Derived (read-only) summary metrics — no source data or formulas changed.
+  const completedItems = checklist.filter((i) => i.checked).length;
+  const completionPct = Math.round((completedItems / checklist.length) * 100);
+  const ctrValues = titles.map((t) => parseFloat(t.ctr));
+  const bestCtr = Math.max(...ctrValues);
+  const avgCtr = ctrValues.reduce((a, b) => a + b, 0) / ctrValues.length;
+  const tagCount = tags.split(", ").length;
+
+  // Category sub-scores (points earned / points possible per group) from the checklist.
+  const groupScore = (ids: number[]) => {
+    const items = checklist.filter((i) => ids.includes(i.id));
+    const possible = items.reduce((a, i) => a + i.points, 0);
+    const earned = items.reduce((a, i) => a + (i.checked ? i.points : 0), 0);
+    return possible ? Math.round((earned / possible) * 100) : 0;
+  };
+  const keywordScore = groupScore([1, 2]);
+  const structureScore = groupScore([3, 5, 6]);
+  const engagementScore = groupScore([4]);
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* Top Section: Score and Checklist */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Score Wheel */}
-        <div className="p-6 rounded-2xl glass-panel border border-white/10 flex flex-col items-center justify-between text-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-xl pointer-events-none" />
-          <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">SEO Optimization Score</h3>
+        <div className="p-6 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] flex flex-col items-center justify-between text-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/[0.05] rounded-full blur-xl pointer-events-none" />
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">SEO Optimization Score</h3>
 
-          <div className="relative my-4 flex items-center justify-center">
-            <div className="w-36 h-36 rounded-full border-4 border-dashed border-primary/20 flex items-center justify-center">
-              <div className="w-32 h-32 rounded-full border-4 flex flex-col items-center justify-center bg-neutral-950 transition-all duration-500 shadow-[0_0_25px_rgba(16,185,129,0.2)]"
-                style={{ borderColor: seoScore >= 80 ? "hsl(var(--success))" : "hsl(var(--secondary))" }}
-              >
-                <span className="text-4xl font-black text-white">{seoScore}</span>
-                <span className="text-[10px] text-muted-foreground uppercase font-black">/ 100</span>
-              </div>
-            </div>
-            {/* Ping indicator */}
-            <div className={`absolute top-2 right-2 w-3.5 h-3.5 rounded-full border-2 border-background animate-pulse ${
-              seoScore >= 80 ? "bg-success" : "bg-secondary"
-            }`} />
+          <div className="my-4">
+            <ScoreRing value={seoScore} size={150} />
           </div>
 
-          <div className="space-y-1">
-            <p className="text-xs font-bold text-white">
-              {seoScore >= 80 ? "✅ SEO Ready for Upload" : "⚠️ Needs Optimization"}
-            </p>
+          <div className="space-y-2">
+            <div className="flex justify-center">
+              <ScoreChip value={seoScore}>
+                {seoScore >= 80 ? "SEO Ready for Upload" : "Needs Optimization"}
+              </ScoreChip>
+            </div>
             <p className="text-[10px] text-muted-foreground max-w-[220px] leading-normal">
-              {seoScore >= 80 
+              {seoScore >= 80
                 ? "Excellent. Keywords, timeline chapters, and links are optimally distributed for high search indexation."
                 : "Complete more items on the checklist to push your SEO score into the recommended green zone (80+)."}
             </p>
           </div>
+
+          {/* Category sub-scores */}
+          <div className="w-full mt-5 space-y-3 text-left">
+            <IndicatorBar label="Keyword Placement" value={keywordScore} icon={Tag} />
+            <IndicatorBar label="Structure & Links" value={structureScore} icon={ListOrdered} />
+            <IndicatorBar label="Engagement" value={engagementScore} icon={MessageSquare} />
+          </div>
         </div>
 
         {/* Checklist */}
-        <div className="lg:col-span-2 p-6 rounded-2xl glass-panel border border-white/10 flex flex-col justify-between">
+        <div className="lg:col-span-2 p-6 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] flex flex-col justify-between">
           <div className="space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
               <CheckSquare size={14} className="text-primary" /> Publishing SEO Checklist
             </h3>
 
@@ -176,36 +195,52 @@ Leave a comment below and I'll personally reply to the first 50 creators with a 
         </div>
       </div>
 
+      {/* Summary metric strip */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatTile
+          label="Checklist Done"
+          value={`${completedItems}/${checklist.length}`}
+          sub={`${completionPct}% complete`}
+          tone={toneForScore(completionPct)}
+          icon={CheckSquare}
+        />
+        <StatTile
+          label="Best Title CTR"
+          value={`${bestCtr.toFixed(1)}%`}
+          sub="top suggestion"
+          tone="good"
+          icon={TrendingUp}
+        />
+        <StatTile
+          label="Avg Title CTR"
+          value={`${avgCtr.toFixed(1)}%`}
+          sub={`${titles.length} variants`}
+          tone="good"
+          icon={Sparkles}
+        />
+        <StatTile
+          label="Search Tags"
+          value={tagCount}
+          sub="ready to paste"
+          icon={Tag}
+        />
+      </div>
+
       {/* Tabs navigation for metadata assets */}
       <div className="space-y-4">
-        <div className="flex border-b border-white/10">
-          {[
+        <Tabs
+          tabs={[
             { id: "titles", label: "Titles & CTR", icon: Sparkles },
             { id: "desc", label: "Description Template", icon: Globe },
             { id: "tags", label: "Tags & Chapters", icon: Tag },
             { id: "community", label: "Community Tab & Pinned", icon: MessageSquare }
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const active = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-3 text-xs font-bold border-b-2 transition-all shrink-0 ${
-                  active 
-                    ? "border-primary text-white bg-primary/5" 
-                    : "border-transparent text-muted-foreground hover:text-white"
-                }`}
-              >
-                <Icon size={14} />
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
+          ]}
+          active={activeTab}
+          onChange={setActiveTab}
+        />
 
         {/* Tab Contents */}
-        <div className="p-6 rounded-2xl glass-panel border border-white/10">
+        <div className="p-6 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]">
           <AnimatePresence mode="wait">
             {activeTab === "titles" && (
               <motion.div
@@ -233,17 +268,18 @@ Leave a comment below and I'll personally reply to the first 50 creators with a 
                         }`}
                       >
                         <div className="space-y-1">
-                          <span className="text-[9px] uppercase font-black text-primary bg-primary/20 px-2 py-0.5 rounded border border-primary/20">
+                          <span className="text-[9px] uppercase font-semibold text-primary bg-primary/20 px-2 py-0.5 rounded border border-primary/20">
                             {title.type}
                           </span>
                           <p className="text-xs font-bold text-white mt-1">"{title.text}"</p>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
-                          <div className="text-right">
-                            <span className="text-[9px] text-muted-foreground uppercase font-black block">Predicted CTR</span>
-                            <strong className="text-sm font-extrabold text-success flex items-center gap-0.5">
+                          <div className="text-right space-y-1">
+                            <span className="text-[9px] text-muted-foreground uppercase font-semibold block">Predicted CTR</span>
+                            <strong className="text-sm font-extrabold text-success flex items-center gap-0.5 justify-end">
                               <TrendingUp size={12} /> {title.ctr}
                             </strong>
+                            <ScoreChip value={Math.max(0, Math.min(100, (parseFloat(title.ctr) - 6) * 25))} />
                           </div>
                           <button
                             onClick={(e) => {
@@ -273,7 +309,7 @@ Leave a comment below and I'll personally reply to the first 50 creators with a 
                   <h4 className="text-xs font-bold text-white">Full Video Description Layout</h4>
                   <button
                     onClick={() => handleCopy(descriptions[0], "desc")}
-                    className="px-3 py-1.5 rounded bg-primary hover:bg-primary-foreground text-black text-xs font-bold transition flex items-center gap-1 shadow-[0_0_15px_rgba(139,92,246,0.2)]"
+                    className="btn-premium text-white font-semibold px-3 py-1.5 rounded text-xs transition flex items-center gap-1"
                   >
                     {copiedText === "desc" ? <Check size={12} /> : <Copy size={12} />}
                     {copiedText === "desc" ? "Copied" : "Copy Description"}
@@ -403,10 +439,16 @@ Leave a comment below and I'll personally reply to the first 50 creators with a 
       </div>
 
       {/* Navigate to Thumbnails */}
-      <div className="p-6 rounded-2xl glass-panel bg-gradient-to-r from-primary/10 to-transparent border border-primary/20 flex flex-col md:flex-row justify-between items-center gap-4">
+      <GradientBorderCard
+        gradient="violet"
+        glow="rgba(139,92,246,0.5)"
+        radius={24}
+        thickness={2}
+        innerClassName="p-6 flex flex-col md:flex-row justify-between items-center gap-4"
+      >
         <div className="flex items-center gap-3">
           <div className="p-3 rounded-xl bg-primary/20 text-primary border border-primary/30 shrink-0">
-            <Sparkles size={20} className="animate-pulse" />
+            <Sparkles size={20} />
           </div>
           <div>
             <h4 className="text-sm font-bold text-white">Analyze your Thumbnail variants</h4>
@@ -415,11 +457,11 @@ Leave a comment below and I'll personally reply to the first 50 creators with a 
         </div>
         <Link
           href={`/thumbnails?topic=${topic}`}
-          className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-foreground text-black font-bold text-xs transition flex items-center gap-1.5 shadow-[0_0_15px_rgba(139,92,246,0.3)] shrink-0"
+          className="btn-premium text-white font-semibold px-5 py-2.5 rounded-full text-xs transition flex items-center gap-1.5 shrink-0"
         >
           Score Thumbnail CTR <ArrowRight size={14} />
         </Link>
-      </div>
+      </GradientBorderCard>
     </div>
   );
 }

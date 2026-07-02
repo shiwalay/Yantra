@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, ReferenceDot } from "recharts";
+import { StatTile, ScoreChip } from "@/components/vidiq";
 
 // Retention curves data
 const videosDatabase: Record<string, any> = {
@@ -86,7 +87,7 @@ export default function AnalyticsDashboard() {
       {/* Video Selector Dropdown & Key Metrics */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <label className="text-[10px] uppercase font-black text-muted-foreground block mb-1">Select Analyzed Video</label>
+          <label className="text-[10px] uppercase font-semibold text-muted-foreground block mb-1">Select Analyzed Video</label>
           <select
             value={selectedVideoKey}
             onChange={(e) => {
@@ -109,26 +110,10 @@ export default function AnalyticsDashboard() {
 
       {/* Metrics Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl glass-panel border border-white/10 space-y-1">
-          <span className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-black"><Eye size={12} /> Total Views</span>
-          <p className="text-xl font-bold text-white">{videoData.views}</p>
-          <span className="text-[9px] text-success font-semibold flex items-center gap-0.5">+14.2% (28d)</span>
-        </div>
-        <div className="p-4 rounded-2xl glass-panel border border-white/10 space-y-1">
-          <span className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-black"><TrendingUp size={12} /> Average CTR</span>
-          <p className="text-xl font-bold text-white">{videoData.ctr}</p>
-          <span className="text-[9px] text-success font-semibold flex items-center gap-0.5">Above channel avg (+0.8%)</span>
-        </div>
-        <div className="p-4 rounded-2xl glass-panel border border-white/10 space-y-1">
-          <span className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-black"><UserPlus size={12} /> Subscriber Gain</span>
-          <p className="text-xl font-bold text-white">{videoData.subs}</p>
-          <span className="text-[9px] text-success font-semibold flex items-center gap-0.5">Conversion rate: 2.1%</span>
-        </div>
-        <div className="p-4 rounded-2xl glass-panel border border-white/10 space-y-1">
-          <span className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-black"><IndianRupee size={12} /> Revenue Earnings</span>
-          <p className="text-xl font-bold text-white">{videoData.revenue}</p>
-          <span className="text-[9px] text-success font-semibold flex items-center gap-0.5">RPM: ₹946.00</span>
-        </div>
+        <StatTile label="Total Views" value={videoData.views} sub="+14.2% (28d)" tone="good" icon={Eye} />
+        <StatTile label="Average CTR" value={videoData.ctr} sub="Above channel avg (+0.8%)" tone="good" icon={TrendingUp} />
+        <StatTile label="Subscriber Gain" value={videoData.subs} sub="Conversion rate: 2.1%" tone="good" icon={UserPlus} />
+        <StatTile label="Revenue Earnings" value={videoData.revenue} sub="RPM: ₹946.00" tone="good" icon={IndianRupee} />
       </div>
 
       {/* Recharts Area Chart and Drop points info */}
@@ -137,13 +122,13 @@ export default function AnalyticsDashboard() {
         {/* Retention Chart */}
         <div className="lg:col-span-8 space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Audience Retention Curve
             </h3>
             <span className="text-xs text-muted-foreground">Click dot markers or list to analyze drops</span>
           </div>
 
-          <div className="p-6 rounded-2xl glass-panel border border-white/10 h-72 relative">
+          <div className="p-6 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] h-72 relative">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={videoData.retentionData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                 <defs>
@@ -187,7 +172,7 @@ export default function AnalyticsDashboard() {
 
         {/* Drop point decision editor */}
         <div className="lg:col-span-4 space-y-4">
-          <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Retention Drop Diagnostics
           </h3>
 
@@ -200,15 +185,15 @@ export default function AnalyticsDashboard() {
                   onClick={() => setSelectedDropId(drop.id)}
                   className={`w-full p-4 rounded-xl border text-left transition-all flex flex-col gap-2 ${
                     isSelected 
-                      ? "border-red-500/40 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]" 
+                      ? "border-red-500/40 bg-red-500/5"
                       : "border-white/5 bg-white/5 hover:border-white/10 hover:bg-white/10"
                   }`}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-[9px] uppercase font-black text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
+                    <span className="text-[9px] uppercase font-semibold text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
                       Drop at {drop.time}
                     </span>
-                    <strong className="text-xs text-white">{drop.pct} retention</strong>
+                    <ScoreChip value={parseFloat(drop.pct)}>{drop.pct} retention</ScoreChip>
                   </div>
                   <h4 className="text-xs font-bold text-white leading-snug">{drop.label}</h4>
                 </button>
@@ -227,15 +212,15 @@ export default function AnalyticsDashboard() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="p-5 rounded-2xl glass-panel border border-white/10 grid grid-cols-1 md:grid-cols-2 gap-6"
+            className="p-5 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] grid grid-cols-1 md:grid-cols-2 gap-6"
           >
             <div className="space-y-2">
-              <span className="text-[9px] uppercase font-black text-red-400 flex items-center gap-1"><AlertTriangle size={10} /> The Problem</span>
+              <span className="text-[9px] uppercase font-semibold text-red-400 flex items-center gap-1"><AlertTriangle size={10} /> The Problem</span>
               <h4 className="text-xs font-bold text-white">{activeDrop.label} Deconstruction</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">{activeDrop.desc}</p>
             </div>
             <div className="space-y-2 border-l border-white/5 pl-0 md:pl-6">
-              <span className="text-[9px] uppercase font-black text-success flex items-center gap-1"><Sparkles size={10} /> AI Coach Decision</span>
+              <span className="text-[9px] uppercase font-semibold text-success flex items-center gap-1"><Sparkles size={10} /> AI Coach Decision</span>
               <h4 className="text-xs font-bold text-white">How to fix this in your next video</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">{activeDrop.solution}</p>
             </div>
@@ -248,11 +233,11 @@ export default function AnalyticsDashboard() {
         
         {/* Upload Heatmap */}
         <div className="lg:col-span-8 space-y-4">
-          <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Calendar size={14} className="text-primary" /> Peak Audience Activity & Best Upload Time
           </h3>
 
-          <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-4">
+          <div className="p-6 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] space-y-4">
             <div className="flex gap-6 text-[10px] text-muted-foreground">
               <span>Best Day: <strong className="text-white">Wednesday</strong></span>
               <span>Best Hour: <strong className="text-white">6:00 PM</strong></span>
@@ -265,13 +250,13 @@ export default function AnalyticsDashboard() {
                   key={idx} 
                   className={`p-3 rounded-lg text-center flex flex-col justify-between items-center transition-all ${
                     item.active >= 95 
-                      ? "bg-primary text-black border border-primary shadow-[0_0_15px_rgba(139,92,246,0.5)]" 
+                      ? "bg-primary text-white border border-primary"
                       : item.active >= 70 
                       ? "bg-primary/20 text-white border border-primary/20" 
                       : "bg-white/5 text-muted-foreground border border-white/5"
                   }`}
                 >
-                  <span className="text-[9px] uppercase font-black">{item.day}</span>
+                  <span className="text-[9px] uppercase font-semibold">{item.day}</span>
                   <span className="text-xs font-bold my-1">{item.hour}</span>
                   <span className="text-[8px] font-bold opacity-80">{item.active}% active</span>
                 </div>
@@ -281,10 +266,10 @@ export default function AnalyticsDashboard() {
         </div>
 
         {/* Future Recommendations */}
-        <div className="lg:col-span-4 p-6 rounded-2xl glass-panel border border-white/10 flex flex-col justify-between">
+        <div className="lg:col-span-4 p-6 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] flex flex-col justify-between">
           <div className="space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <Sparkles size={14} className="text-primary animate-pulse" /> Next Video Decisions
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Sparkles size={14} className="text-primary" /> Next Video Decisions
             </h3>
 
             <div className="space-y-3 text-xs">
@@ -306,7 +291,7 @@ export default function AnalyticsDashboard() {
 
           <Link
             href="/research?topic=AI Client Acquisition"
-            className="w-full mt-4 py-2.5 rounded-xl bg-primary hover:bg-primary-foreground text-black text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(139,92,246,0.2)]"
+            className="btn-premium w-full mt-4 py-2.5 rounded-xl text-white font-semibold text-xs transition flex items-center justify-center gap-1.5"
           >
             Research Topic <ArrowRight size={14} />
           </Link>

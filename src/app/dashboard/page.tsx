@@ -2,70 +2,61 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Sparkles, 
-  ArrowRight,
-  CheckCircle2,
-  Circle,
-  Activity,
-  TrendingUp,
-  Clock,
-  Play
+import {
+  Sparkles, ArrowRight, FileText, Image as ImageIcon, Search, Globe,
+  TrendingUp, Eye, Users, Video, Play, Film, Clock,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { MetricAreaCard, GradientCard, ActivityRow, CategoryBar } from "@/components/brink";
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  show: { opacity: 1, transition: { staggerChildren: 0.08 } },
+};
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } },
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
-};
+const viewsData = [{ v: 20 }, { v: 32 }, { v: 26 }, { v: 44 }, { v: 38 }, { v: 56 }, { v: 64 }, { v: 72 }];
+const subsData = [{ v: 30 }, { v: 34 }, { v: 31 }, { v: 40 }, { v: 38 }, { v: 33 }, { v: 42 }, { v: 39 }];
 
-// "Alive AI" Loading Component
+const ACTIVITY = [
+  { icon: FileText, title: "Script generated — Cold Email for Agencies", time: "Today, 2:14 PM", amount: "+1 draft", positive: true, color: "#8B5CF6" },
+  { icon: ImageIcon, title: "Thumbnail scored 87/100", time: "Today, 11:02 AM", amount: "High CTR", positive: true, color: "#22D3EE" },
+  { icon: Search, title: "Keyword researched — AI Business", time: "Yesterday, 6:40 PM", amount: "92 score", positive: true, color: "#34D399" },
+  { icon: TrendingUp, title: "Retention drop flagged at 0:22", time: "Nov 26, 3:20 PM", amount: "−45%", positive: false, color: "#F87171" },
+  { icon: Globe, title: "SEO optimized — 10 tags added", time: "Nov 25, 9:12 AM", amount: "Ready", positive: true, color: "#F472B6" },
+];
+
+const CATEGORIES = [
+  { icon: Video, label: "Tutorials", value: 78, color: "#8B5CF6", caption: "24 videos published" },
+  { icon: Play, label: "Shorts", value: 64, color: "#34D399", caption: "18 shorts this month" },
+  { icon: Eye, label: "Reviews", value: 45, color: "#22D3EE", caption: "9 videos published" },
+  { icon: Film, label: "Vlogs", value: 30, color: "#F472B6", caption: "6 videos published" },
+];
+
 function AliveLoadingState({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState(0);
-  const steps = [
-    "Analyzing YouTube...",
-    "Checking 1,293 videos...",
-    "Finding content gaps...",
-    "Studying competitors...",
-    "Building your strategy...",
-    "Done."
-  ];
-
+  const steps = ["Analyzing YouTube...", "Checking 1,293 videos...", "Finding content gaps...", "Studying competitors...", "Building your strategy...", "Done."];
   useEffect(() => {
     if (step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 800);
-      return () => clearTimeout(timer);
-    } else {
-      const timer = setTimeout(() => onComplete(), 600);
-      return () => clearTimeout(timer);
+      const t = setTimeout(() => setStep((s) => s + 1), 800);
+      return () => clearTimeout(t);
     }
+    const t = setTimeout(() => onComplete(), 600);
+    return () => clearTimeout(t);
   }, [step, onComplete]);
-
   return (
-    <motion.div 
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "auto" }}
-      className="w-full mt-6 p-4 rounded-[16px] bg-card border border-primary/20 shadow-[0_0_30px_rgba(139,92,246,0.15)] flex flex-col gap-3"
-    >
+    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
+      className="w-full mt-4 p-4 rounded-2xl bg-card border border-primary/20 flex flex-col gap-3">
       <div className="flex items-center justify-between text-xs font-semibold text-primary">
-        <span className="flex items-center gap-2">
-          <Sparkles size={14} className={step < steps.length - 1 ? "animate-pulse" : ""} />
-          {steps[step]}
-        </span>
+        <span className="flex items-center gap-2"><Sparkles size={14} className={step < steps.length - 1 ? "animate-pulse" : ""} /> {steps[step]}</span>
         <span>{Math.round((step / (steps.length - 1)) * 100)}%</span>
       </div>
       <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-        <motion.div 
-          className="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
-          initial={{ width: "0%" }}
-          animate={{ width: `${(step / (steps.length - 1)) * 100}%` }}
-          transition={{ ease: "easeInOut" }}
-        />
+        <motion.div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
+          initial={{ width: "0%" }} animate={{ width: `${(step / (steps.length - 1)) * 100}%` }} transition={{ ease: "easeInOut" }} />
       </div>
     </motion.div>
   );
@@ -77,10 +68,7 @@ export default function CommandCenter() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
-    const onboarded = localStorage.getItem("yantra_onboarded");
-    if (!onboarded) {
-      router.push("/onboarding");
-    }
+    if (!localStorage.getItem("yantra_onboarded")) router.push("/onboarding");
   }, [router]);
 
   const handleGenerate = (e: React.FormEvent) => {
@@ -88,150 +76,81 @@ export default function CommandCenter() {
     if (!topicInput.trim()) return;
     setIsGenerating(true);
   };
-
-  const onGenerationComplete = () => {
-    // In a real app, this would route to the unified unified workflow page.
-    // For now, we simulate redirecting to the first step of the unified builder.
-    router.push("/scripts"); 
-  };
+  const onGenerationComplete = () => router.push(`/scripts?topic=${encodeURIComponent(topicInput)}`);
 
   return (
-    <motion.div 
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-      className="max-w-[800px] mx-auto space-y-8 pb-20 pt-4 md:pt-10"
-    >
-      {/* Personalized Hero */}
-      <motion.div variants={itemVariants} className="text-center space-y-3">
-        <h1 className="text-[clamp(32px,5vw,48px)] font-black text-foreground tracking-tight leading-tight">
-          Good Morning, Swapnil
-        </h1>
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border/50 shadow-sm">
-          <Activity size={16} className="text-primary" />
-          <span className="text-sm font-semibold text-muted-foreground">Today's Growth Score:</span>
-          <span className="text-sm font-black text-foreground">82/100</span>
-        </div>
-      </motion.div>
-
-      {/* The Single Input AI Engine */}
-      <motion.div variants={itemVariants} className="w-full relative z-10">
-        <form onSubmit={handleGenerate} className="relative w-full group">
-          {/* Animated glow behind input */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-[24px] blur-xl opacity-50 group-hover:opacity-100 transition duration-500 pointer-events-none" />
-          
-          <div className="relative flex flex-col md:flex-row items-center bg-card border border-border/50 rounded-[20px] shadow-2xl overflow-hidden focus-within:border-primary/50 transition-colors p-2 gap-2">
-            <div className="flex-1 w-full flex items-center px-4 py-2">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-6xl mx-auto space-y-6 pb-16">
+      {/* Create bar */}
+      <motion.div variants={itemVariants}>
+        <form onSubmit={handleGenerate} className="relative group">
+          <div className="surface-elevated flex flex-col md:flex-row items-center rounded-2xl overflow-hidden focus-within:border-primary/50 transition-colors p-2 gap-2">
+            <div className="flex-1 w-full flex items-center px-3 py-1.5">
               <Sparkles className="text-muted-foreground shrink-0 mr-3" size={20} />
-              <input 
-                type="text"
-                placeholder="What video do you want to make?"
-                value={topicInput}
-                onChange={(e) => setTopicInput(e.target.value)}
-                disabled={isGenerating}
-                className="w-full bg-transparent border-none outline-none text-foreground text-lg md:text-xl font-medium placeholder:text-muted-foreground/50 disabled:opacity-50"
-              />
+              <input type="text" placeholder="What video do you want to make?" value={topicInput}
+                onChange={(e) => setTopicInput(e.target.value)} disabled={isGenerating}
+                className="w-full bg-transparent border-none outline-none text-foreground text-base md:text-lg font-medium placeholder:text-muted-foreground/50 disabled:opacity-50" />
             </div>
-            <button 
-              type="submit"
-              disabled={isGenerating || !topicInput.trim()}
-              className="w-full md:w-auto px-6 py-4 md:py-3 rounded-[14px] bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-bold transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] shrink-0 flex items-center justify-center gap-2"
-            >
+            <button type="submit" disabled={isGenerating || !topicInput.trim()}
+              className="btn-premium w-full md:w-auto px-6 py-3 rounded-xl disabled:opacity-50 disabled:saturate-50 text-white font-semibold shrink-0 flex items-center justify-center gap-2">
               Generate Strategy <ArrowRight size={18} />
             </button>
           </div>
         </form>
-
-        <AnimatePresence>
-          {isGenerating && <AliveLoadingState onComplete={onGenerationComplete} />}
-        </AnimatePresence>
+        <AnimatePresence>{isGenerating && <AliveLoadingState onComplete={onGenerationComplete} />}</AnimatePresence>
       </motion.div>
 
-      {/* Outcome-Driven Daily Dashboard */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-        
-        {/* Today's Mission Workflow */}
-        <div className="p-6 md:p-8 rounded-[24px] bg-card border border-border/40 shadow-xl flex flex-col h-full">
-          <div className="flex items-center justify-between pb-4 border-b border-border/30 mb-6">
-            <h3 className="text-sm font-black uppercase tracking-widest text-foreground flex items-center gap-2">
-              <Activity size={16} className="text-primary" /> Today's Mission
-            </h3>
-            <span className="text-[10px] uppercase font-bold text-muted-foreground bg-muted/50 px-2 py-1 rounded">In Progress</span>
-          </div>
+      {/* Row 1: metrics + gradient balance */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <MetricAreaCard label="Views · Last 30 Days" value="248.7K" delta="+12%" up color="#34D399" icon={Eye} data={viewsData} />
+        <MetricAreaCard label="Subscribers · Last 30 Days" value="+1,240" delta="-4%" up={false} color="#F87171" icon={Users} data={subsData} />
+        <GradientCard label="Est. Monthly Revenue" value="$4,827" last4="4827" expiry="03/26" holder="Swapnil B." badge="Growth Pro" />
+      </motion.div>
 
-          <div className="space-y-6 flex-1">
-            <div className="flex items-start gap-4 opacity-50">
-              <CheckCircle2 size={20} className="text-success shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-bold text-foreground line-through decoration-2 decoration-success/50">Find Winning Topic</p>
-                <p className="text-xs text-muted-foreground mt-1">"AI SaaS Automation" selected</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <CheckCircle2 size={20} className="text-success shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-bold text-foreground">Write Script</p>
-                <p className="text-xs text-muted-foreground mt-1">Draft completed. Ready for review.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 relative">
-              {/* Active Indicator Pulse */}
-              <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-primary animate-ping" />
-              <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-primary" />
-              
-              <Circle size={20} className="text-primary shrink-0 mt-0.5 ml-2" strokeWidth={3} />
-              <div className="ml-2">
-                <p className="text-sm font-bold text-primary">Design Thumbnail</p>
-                <p className="text-xs text-muted-foreground mt-1">Pending AI composition scoring.</p>
-                <button className="mt-3 text-xs font-bold bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors border border-primary/20">
-                  Do it now &rarr;
-                </button>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 opacity-50">
-              <Circle size={20} className="text-muted-foreground shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-bold text-foreground">Rank Higher (SEO)</p>
-                <p className="text-xs text-muted-foreground mt-1">Pending video file.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 opacity-50">
-              <Clock size={20} className="text-muted-foreground shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-bold text-foreground">Publish</p>
-                <p className="text-xs text-muted-foreground mt-1">Scheduled for Tomorrow, 11:00 AM</p>
-              </div>
-            </div>
+      {/* Row 2: activity + categories */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Recent activity */}
+        <div className="lg:col-span-2 rounded-3xl bg-card border border-white/[0.06] p-5 md:p-6 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-base font-semibold text-white">Recent Activity</h3>
+            <button onClick={() => router.push("/analytics")}
+              className="text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 border border-primary/20 px-3 py-1.5 rounded-lg transition-colors">
+              View all
+            </button>
+          </div>
+          <div className="divide-y divide-white/[0.05]">
+            {ACTIVITY.map((a) => <ActivityRow key={a.title} {...a} />)}
           </div>
         </div>
 
-        {/* Estimated Impact / Outcome Metrics */}
-        <div className="flex flex-col gap-6">
-          <div className="p-6 md:p-8 rounded-[24px] bg-card border border-border/40 shadow-xl flex flex-col justify-center items-center text-center relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-success/5 to-transparent pointer-events-none" />
-            <TrendingUp size={24} className="text-success mb-4 group-hover:scale-110 transition-transform duration-300" />
-            <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">
-              Estimated Growth Impact
-            </h3>
-            <p className="text-4xl font-black text-foreground tracking-tighter">
-              +145 <span className="text-lg text-muted-foreground font-semibold tracking-normal">Subs</span>
-            </p>
-            <p className="text-xs text-muted-foreground mt-3 max-w-[200px] leading-relaxed">
-              Completing today's mission keeps you on track for a 12% MoM channel growth.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-[24px] bg-primary/10 border border-primary/20 shadow-lg flex items-center justify-between group cursor-pointer hover:bg-primary/20 transition-colors">
-            <div>
-              <h3 className="text-sm font-black text-primary">Resume Workflow</h3>
-              <p className="text-xs text-primary/70 mt-1 font-medium">Jump straight to the Thumbnail engine.</p>
-            </div>
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-lg group-hover:scale-105 transition-transform">
-              <Play size={16} className="ml-1" />
-            </div>
+        {/* Content categories */}
+        <div className="rounded-3xl bg-card border border-white/[0.06] p-5 md:p-6 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]">
+          <h3 className="text-base font-semibold text-white mb-5">Content Categories</h3>
+          <div className="space-y-5">
+            {CATEGORIES.map((c) => <CategoryBar key={c.label} {...c} />)}
           </div>
         </div>
+      </motion.div>
 
+      {/* Today's Mission */}
+      <motion.div variants={itemVariants} className="rounded-3xl bg-card border border-white/[0.06] p-5 md:p-6 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-base font-semibold text-white">Today's Mission</h3>
+          <span className="text-[10px] uppercase font-bold text-warning bg-warning/10 border border-warning/20 px-2 py-1 rounded">In Progress</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="rounded-2xl bg-white/5 border border-white/5 p-4 flex items-center gap-3">
+            <span className="w-9 h-9 rounded-full bg-success/15 text-success flex items-center justify-center shrink-0"><FileText size={15} /></span>
+            <div><p className="text-xs font-semibold text-white">Script drafted</p><p className="text-[10px] text-muted-foreground">Ready for review</p></div>
+          </div>
+          <button onClick={() => router.push("/thumbnails")} className="rounded-2xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors p-4 flex items-center gap-3 text-left">
+            <span className="w-9 h-9 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0"><ImageIcon size={15} /></span>
+            <div><p className="text-xs font-semibold text-primary">Design Thumbnail</p><p className="text-[10px] text-primary/70">Do it now →</p></div>
+          </button>
+          <div className="rounded-2xl bg-white/5 border border-white/5 p-4 flex items-center gap-3 opacity-60">
+            <span className="w-9 h-9 rounded-full bg-muted text-muted-foreground flex items-center justify-center shrink-0"><Clock size={15} /></span>
+            <div><p className="text-xs font-semibold text-white">Publish</p><p className="text-[10px] text-muted-foreground">Tomorrow, 11:00 AM</p></div>
+          </div>
+        </div>
       </motion.div>
     </motion.div>
   );

@@ -26,6 +26,63 @@ import {
   Globe
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { GradientBorderCard, GradientBadge } from "@/components/gradient";
+
+const FEATURES = [
+  { n: "01", color: "#8B5CF6", grad: "violet", Icon: Search, title: "Trend & Opportunity Research",
+    desc: "Find breakout keywords with 90%+ volume surges. Analyze competitor view velocities (views/hour) before you script.", kind: "trend" },
+  { n: "02", color: "#22D3EE", grad: "cool", Icon: GitFork, title: "6 Proven Video Frameworks",
+    desc: "Structure layouts with Case Study, Story Conflict, PAS, or Future Prediction models — with recommended watch-times.", kind: "frameworks" },
+  { n: "03", color: "#F472B6", grad: "pink", Icon: FileText, title: "Paced Scripting Editor",
+    desc: "Generate interactive drafts matching your framework. Place auditory cues, visual pattern interrupts, and hook variations.", kind: "script" },
+  { n: "04", color: "#34D399", grad: "emerald", Icon: Globe, title: "Scorecard SEO Optimizer",
+    desc: "Optimize titles by predicted CTR weight. Auto-create chapters, pinned-comment triggers, and tags.", kind: "seo" },
+];
+
+const WAVE = [8, 18, 11, 26, 14, 33, 20, 38, 16, 29, 12, 34, 22, 40, 18, 30, 14, 24, 10, 21, 31, 16, 27, 12, 23, 35, 18, 28, 14, 24];
+
+function FeatureGraphic({ kind, color }: { kind: string; color: string }) {
+  if (kind === "trend") {
+    const bars = [14, 20, 17, 30, 25, 42, 37, 54];
+    return (
+      <svg viewBox="0 0 220 60" className="w-full h-16">
+        {bars.map((h, i) => <rect key={i} x={i * 27 + 5} y={60 - h} width="15" height={h} rx="3" fill={color} opacity={0.18} />)}
+        <polyline points="12,47 39,41 66,44 93,31 120,35 147,19 174,24 201,7" stroke={color} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="201" cy="7" r="8" fill={color} opacity="0.25" />
+        <circle cx="201" cy="7" r="4" fill={color} />
+      </svg>
+    );
+  }
+  if (kind === "frameworks") {
+    const bars = [30, 44, 26, 52, 38, 48];
+    return (
+      <svg viewBox="0 0 220 60" className="w-full h-16">
+        {bars.map((h, i) => <rect key={i} x={i * 36 + 6} y={60 - h} width="24" height={h} rx="5" fill={color} opacity={0.28 + i * 0.11} />)}
+      </svg>
+    );
+  }
+  if (kind === "script") {
+    return (
+      <svg viewBox="0 0 220 60" className="w-full h-16">
+        <line x1="2" y1="30" x2="218" y2="30" stroke={color} strokeOpacity="0.15" strokeWidth="1" />
+        {WAVE.map((h, i) => <rect key={i} x={i * 7.2 + 4} y={30 - h / 2} width="3" height={h} rx="1.5" fill={color} opacity="0.6" />)}
+        <circle cx="63" cy="30" r="4" fill={color} /><circle cx="153" cy="30" r="4" fill={color} />
+      </svg>
+    );
+  }
+  // seo — scorecard bars
+  const bars = [0.92, 0.64, 0.8];
+  return (
+    <svg viewBox="0 0 220 60" className="w-full h-16">
+      {bars.map((w, i) => (
+        <g key={i}>
+          <rect x="0" y={7 + i * 18} width="220" height="9" rx="4.5" fill={color} opacity="0.12" />
+          <rect x="0" y={7 + i * 18} width={220 * w} height="9" rx="4.5" fill={color} />
+        </g>
+      ))}
+    </svg>
+  );
+}
 
 export default function MarketingLandingPage() {
   const [isOnboarded, setIsOnboarded] = useState(false);
@@ -67,15 +124,15 @@ export default function MarketingLandingPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0c] text-foreground font-sans relative overflow-x-hidden">
       
-      {/* Glow Orbs background */}
-      <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-primary glow-orb opacity-15" />
-      <div className="absolute top-[40%] right-[-10%] w-[600px] h-[600px] rounded-full bg-secondary glow-orb opacity-10" />
-      <div className="absolute inset-0 cyber-grid pointer-events-none opacity-20" />
+      {/* Glow Orbs background — restrained ambient tint */}
+      <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-primary glow-orb opacity-[0.05]" />
+      <div className="absolute top-[40%] right-[-10%] w-[600px] h-[600px] rounded-full bg-secondary glow-orb opacity-[0.04]" />
+      <div className="absolute inset-0 cyber-grid pointer-events-none opacity-[0.12]" />
 
       {/* Header Nav */}
       <header className="sticky top-0 z-40 h-16 flex items-center justify-between px-6 border-b border-white/10 bg-[#0a0a0c]/85 backdrop-blur-md max-w-7xl mx-auto rounded-b-2xl">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-purple-500 shadow-[0_0_15px_rgba(139,92,246,0.4)] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center">
             <YoutubeIcon size={18} className="text-white" />
           </div>
           <span className="text-lg font-bold tracking-tight text-white">
@@ -94,7 +151,7 @@ export default function MarketingLandingPage() {
           {isOnboarded ? (
             <Link
               href="/dashboard"
-              className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-foreground text-black text-xs font-black transition shadow-[0_0_15px_rgba(139,92,246,0.3)]"
+              className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition"
             >
               Go to Dashboard
             </Link>
@@ -108,7 +165,7 @@ export default function MarketingLandingPage() {
               </button>
               <button
                 onClick={handleStartFree}
-                className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-foreground text-black text-xs font-black transition shadow-[0_0_15px_rgba(139,92,246,0.3)]"
+                className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition"
               >
                 Start Free
               </button>
@@ -119,13 +176,13 @@ export default function MarketingLandingPage() {
 
       {/* Hero Section */}
       <section className="py-20 text-center space-y-6 max-w-4xl mx-auto px-6 relative">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 text-xs font-bold uppercase tracking-widest">
-          <Sparkles size={12} className="animate-pulse" /> The Next-Gen Creator Engine
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-semibold uppercase tracking-widest">
+          <Sparkles size={12} /> The Next-Gen Creator Engine
         </div>
 
-        <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight">
-          Build videos that people watch,<br />
-          <span className="bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">YouTube recommends</span>, and businesses profit from.
+        <h1 className="text-5xl sm:text-7xl font-black text-white tracking-tight leading-[1.02]">
+          Build videos <span className="text-gradient-brand">people watch</span>,<br />
+          <span className="text-gradient-brand">YouTube recommends</span>, and businesses profit from.
         </h1>
 
         <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
@@ -135,20 +192,20 @@ export default function MarketingLandingPage() {
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
           <button
             onClick={handleStartFree}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-primary-foreground text-black font-black text-xs transition flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(139,92,246,0.4)]"
+            className="btn-premium w-full sm:w-auto px-7 py-3.5 rounded-full text-white font-semibold text-sm flex items-center justify-center gap-1.5"
           >
-            Start Free - 10s Setup <ArrowRight size={14} />
+            Start Free - 10s Setup <ArrowRight size={15} />
           </button>
           <button
             onClick={() => setShowDemoVideo(true)}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs transition border border-white/10 flex items-center justify-center gap-1.5"
+            className="btn-pill w-full sm:w-auto px-7 py-3.5 text-white font-semibold text-sm flex items-center justify-center gap-1.5"
           >
             Watch Demo <Play size={14} className="text-primary fill-primary" />
           </button>
         </div>
 
         {/* Small trusted indicator */}
-        <div className="pt-12 text-[10px] text-muted-foreground uppercase tracking-widest font-black flex items-center justify-center gap-4">
+        <div className="pt-12 text-[10px] text-muted-foreground uppercase tracking-widest font-semibold flex items-center justify-center gap-4">
           <span>Trusted by 10K+ Creators</span>
           <span>•</span>
           <span>Google OAuth Verified</span>
@@ -159,15 +216,15 @@ export default function MarketingLandingPage() {
 
       {/* Interactive AI Product Demo */}
       <section className="py-12 max-w-5xl mx-auto px-6" id="features">
-        <div className="p-6 rounded-3xl glass-panel border border-white/10 shadow-2xl relative overflow-hidden bg-neutral-950/40 space-y-6">
+        <div className="p-6 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] relative overflow-hidden space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-white/5">
             <div>
-              <h3 className="text-sm font-black uppercase tracking-wider text-white">Interactive Product Preview</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-white">Interactive Product Preview</h3>
               <p className="text-[10px] text-muted-foreground mt-0.5">Toggle tabs to see how our AI gives decisions, not just raw stats.</p>
             </div>
 
             {/* Selector tabs */}
-            <div className="flex gap-2 p-1 rounded-xl bg-white/5 border border-white/5 shrink-0 text-[10px] font-black">
+            <div className="flex gap-2 p-1 rounded-xl bg-white/5 border border-white/5 shrink-0 text-[10px] font-semibold">
               {[
                 { id: "decision", label: "Coach Decisions" },
                 { id: "script", label: "Scripting visualizer" },
@@ -177,7 +234,7 @@ export default function MarketingLandingPage() {
                   key={tab.id}
                   onClick={() => setActiveDemoTab(tab.id)}
                   className={`px-3 py-1.5 rounded-lg transition-colors ${
-                    activeDemoTab === tab.id ? "bg-primary text-black" : "text-muted-foreground hover:text-white"
+                    activeDemoTab === tab.id ? "bg-primary text-white" : "text-muted-foreground hover:text-white"
                   }`}
                 >
                   {tab.label}
@@ -199,7 +256,7 @@ export default function MarketingLandingPage() {
                   <div className="inline-flex items-center gap-1 bg-primary/20 text-primary px-2 py-0.5 rounded-full text-[9px] font-bold">
                     <Sparkles size={8} /> Today's Decision Alert
                   </div>
-                  <h4 className="text-lg font-black text-white">Create: "How I Built an AI Employee for ₹0"</h4>
+                  <h4 className="text-lg font-semibold text-white">Create: "How I Built an AI Employee for ₹0"</h4>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     Our Trend Engine detected a **340% search volume breakout** for "cheap AI agents" on Google. Competitor 'TechGrowth' got 85K views using a story layout last week. Our model predicts this topic can bring in **45K+ views** for your channel.
                   </p>
@@ -278,52 +335,57 @@ export default function MarketingLandingPage() {
       </section>
 
       {/* Feature Grids */}
-      <section className="py-20 max-w-7xl mx-auto px-6 space-y-12">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-black text-white uppercase tracking-wider">The Complete Growth Arsenal</h2>
-          <p className="text-xs text-muted-foreground">Every engine is built to guide decisions, optimize CTR, and secure retention.</p>
+      <section className="py-24 max-w-7xl mx-auto px-6 space-y-14">
+        <div className="text-center space-y-4">
+          <span className="inline-block text-[11px] font-bold uppercase tracking-[0.2em] text-primary">The Complete Growth Arsenal</span>
+          <h2 className="text-4xl md:text-5xl font-semibold text-white tracking-tight leading-[1.05]">
+            Four engines. One <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">unfair advantage.</span>
+          </h2>
+          <p className="text-base md:text-lg text-neutral-400 max-w-2xl mx-auto leading-relaxed">
+            Every engine is built to guide decisions, optimize CTR, and secure retention — not just hand you more charts.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="p-5 rounded-2xl glass-panel border border-white/5 space-y-3">
-            <Search className="text-primary" size={24} />
-            <h4 className="text-sm font-bold text-white">1. Trend & Opportunity Research</h4>
-            <p className="text-[11px] text-muted-foreground leading-normal">
-              Find breakout keywords with 90%+ volume surges. Analyze competitor view velocities (views/hour) before scripting.
-            </p>
-          </div>
-          <div className="p-5 rounded-2xl glass-panel border border-white/5 space-y-3">
-            <GitFork className="text-primary" size={24} />
-            <h4 className="text-sm font-bold text-white">2. 6 proven video frameworks</h4>
-            <p className="text-[11px] text-muted-foreground leading-normal">
-              Structure your layouts using Case Study, Story Conflict, PAS, or Future Prediction models. Get recommended watch-times.
-            </p>
-          </div>
-          <div className="p-5 rounded-2xl glass-panel border border-white/5 space-y-3">
-            <FileText className="text-primary" size={24} />
-            <h4 className="text-sm font-bold text-white">3. Paced Scripting Editor</h4>
-            <p className="text-[11px] text-muted-foreground leading-normal">
-              Generate interactive drafts matching your framework. Place auditory cues, visual pattern interrupts, and hook variations.
-            </p>
-          </div>
-          <div className="p-5 rounded-2xl glass-panel border border-white/5 space-y-3">
-            <Globe className="text-primary" size={24} />
-            <h4 className="text-sm font-bold text-white">4. Scorecard SEO Optimizer</h4>
-            <p className="text-[11px] text-muted-foreground leading-normal">
-              Optimize titles based on predicted CTR weights. Auto-create chapters, pinning comment triggers, and tags.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+          {FEATURES.map((f) => {
+            const Icon = f.Icon;
+            return (
+              <GradientBorderCard
+                key={f.n}
+                gradient={f.grad}
+                glow={`${f.color}45`}
+                radius={24}
+                thickness={2}
+                className="group transition-transform duration-300 hover:-translate-y-1.5"
+                innerClassName="p-6 md:p-7 overflow-hidden h-full"
+              >
+                <div className="absolute -top-14 -right-10 w-36 h-36 rounded-full blur-3xl opacity-25 group-hover:opacity-50 transition-opacity duration-500 pointer-events-none" style={{ background: f.color }} />
+                <span className="absolute top-4 right-6 text-5xl font-black leading-none select-none pointer-events-none" style={{ color: f.color, opacity: 0.14 }}>{f.n}</span>
+
+                <div className="relative w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: `linear-gradient(145deg, ${f.color}, ${f.color}80)`, boxShadow: `0 10px 26px -8px ${f.color}` }}>
+                  <Icon size={26} className="text-white" strokeWidth={2.2} />
+                </div>
+
+                <h4 className="text-lg md:text-xl font-bold text-white mb-2 tracking-tight">{f.title}</h4>
+                <p className="text-sm text-neutral-400 leading-relaxed mb-6">{f.desc}</p>
+
+                <div className="relative">
+                  <FeatureGraphic kind={f.kind} color={f.color} />
+                </div>
+              </GradientBorderCard>
+            );
+          })}
         </div>
       </section>
 
       {/* Comparison section */}
       <section className="py-20 max-w-5xl mx-auto px-6 space-y-12" id="compare">
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-black text-white uppercase tracking-wider">How we compare</h2>
+          <h2 className="text-2xl font-semibold text-white uppercase tracking-wider">How we compare</h2>
           <p className="text-xs text-muted-foreground">Why Yantra is an Operating System, not just keyword statistics data.</p>
         </div>
 
-        <div className="p-6 rounded-3xl glass-panel border border-white/10 overflow-x-auto bg-neutral-950/20">
+        <div className="p-6 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-white/10">
@@ -369,8 +431,8 @@ export default function MarketingLandingPage() {
           <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold uppercase tracking-widest shadow-sm">
             <Sparkles size={12} className="animate-pulse" /> The Ultimate YouTube Growth OS
           </div>
-          <h2 className="text-[clamp(32px,5vw,56px)] font-black text-white tracking-tight leading-tight">
-            One Outcome. <span className="text-primary">One Price.</span>
+          <h2 className="text-[clamp(36px,5.5vw,60px)] font-black text-white tracking-tight leading-tight">
+            One Outcome. <span className="text-gradient-brand">One Price.</span>
           </h2>
           <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
             We don't limit features. You get the complete AI operating system designed to turn your channel into a predictable revenue system.
@@ -420,15 +482,16 @@ export default function MarketingLandingPage() {
           {/* Deep background glow */}
           <div className="absolute -inset-4 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-[40px] blur-3xl opacity-50 pointer-events-none" />
           
-          <div className="relative p-8 md:p-12 rounded-[32px] bg-[#0d0d11]/90 border border-primary/30 shadow-[0_20px_60px_hsl(var(--primary)/0.2)] overflow-hidden flex flex-col lg:flex-row gap-12 backdrop-blur-xl">
+          <GradientBorderCard gradient="violet" glow="rgba(139,92,246,0.55)" radius={32} thickness={2} innerClassName="relative p-8 md:p-12 overflow-hidden flex flex-col lg:flex-row gap-12">
             
             {/* Decorative radial gradient inside card */}
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
 
             {/* Left Column: Price & CTA */}
             <div className="flex-1 flex flex-col justify-center space-y-6 lg:border-r border-white/10 lg:pr-12 relative z-10">
+              <div className="self-start"><GradientBadge gradient="warm">Best Value</GradientBadge></div>
               <div>
-                <h3 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-2">
+                <h3 className="text-2xl font-semibold text-white uppercase tracking-widest flex items-center gap-2">
                   <Globe className="text-primary" size={24} /> AI Growth OS
                 </h3>
                 <p className="text-sm text-muted-foreground mt-2 font-medium">
@@ -438,7 +501,7 @@ export default function MarketingLandingPage() {
 
               <div className="py-6 border-y border-white/10">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-6xl font-black text-white tracking-tighter">{displayPrice}</span>
+                  <span className="text-6xl font-semibold text-white tracking-tighter">{displayPrice}</span>
                   <span className="text-sm font-semibold text-muted-foreground">/ month</span>
                 </div>
                 <div className="min-h-[24px] mt-2">
@@ -459,7 +522,7 @@ export default function MarketingLandingPage() {
 
               <button
                 onClick={handleStartFree}
-                className="w-full py-4 rounded-[16px] bg-primary hover:bg-primary/90 text-black font-black text-sm transition-all flex items-center justify-center gap-2 shadow-[0_8px_30px_hsl(var(--primary)/0.4)] hover:-translate-y-1 active:scale-95"
+                className="btn-premium w-full py-4 rounded-full text-white font-semibold text-sm flex items-center justify-center gap-2 hover:-translate-y-1 active:scale-95"
               >
                 Start Creating Now <ArrowRight size={18} />
               </button>
@@ -511,14 +574,14 @@ export default function MarketingLandingPage() {
               </div>
             </div>
 
-          </div>
+          </GradientBorderCard>
         </div>
       </section>
 
       {/* FAQ Sections */}
       <section className="py-20 max-w-3xl mx-auto px-6 space-y-8" id="faq">
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-black text-white uppercase tracking-wider">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-semibold text-white uppercase tracking-wider">Frequently Asked Questions</h2>
           <p className="text-xs text-muted-foreground">Clear queries to help you start.</p>
         </div>
 
@@ -589,7 +652,7 @@ export default function MarketingLandingPage() {
               </button>
 
               <div className="text-center space-y-1">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-purple-500 shadow-[0_0_12px_rgba(139,92,246,0.4)] flex items-center justify-center mx-auto mb-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center mx-auto mb-2">
                   <YoutubeIcon size={16} className="text-white" />
                 </div>
                 <h3 className="text-base font-bold text-white">Welcome to Yantra.ai</h3>
@@ -619,7 +682,7 @@ export default function MarketingLandingPage() {
 
                 <div className="relative flex py-2 items-center">
                   <div className="flex-grow border-t border-white/5"></div>
-                  <span className="flex-shrink mx-4 text-[9px] uppercase font-black text-muted-foreground">or email</span>
+                  <span className="flex-shrink mx-4 text-[9px] uppercase font-semibold text-muted-foreground">or email</span>
                   <div className="flex-grow border-t border-white/5"></div>
                 </div>
 
@@ -631,7 +694,7 @@ export default function MarketingLandingPage() {
                   />
                   <button
                     onClick={handleOAuthLogin}
-                    className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary-foreground text-black font-bold text-xs transition"
+                    className="btn-premium w-full py-2.5 rounded-xl text-white font-semibold text-xs"
                   >
                     Continue with Email
                   </button>
@@ -678,7 +741,7 @@ export default function MarketingLandingPage() {
                     setShowDemoVideo(false);
                     handleStartFree();
                   }}
-                  className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-foreground text-black font-bold text-xs transition inline-flex items-center gap-1 shadow-[0_0_15px_rgba(139,92,246,0.3)]"
+                  className="btn-premium px-5 py-2.5 rounded-xl text-white font-semibold text-xs inline-flex items-center gap-1"
                 >
                   Start Creating Now <ArrowRight size={12} />
                 </button>

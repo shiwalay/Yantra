@@ -16,6 +16,11 @@ import {
   FileText
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { StatTile, ScoreChip, ScoreRing, toneForScore } from "@/components/vidiq";
+import { GradientBorderCard } from "@/components/gradient";
+
+// Parse a retention string like "93%" into a 0-100 number for the vidIQ kit.
+const retNum = (r: string) => parseInt(r, 10) || 0;
 
 const frameworks = [
   {
@@ -140,9 +145,15 @@ export default function FrameworkEngine() {
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* Header Recommendation */}
-      <div className="p-6 rounded-2xl glass-panel bg-gradient-to-r from-primary/10 via-purple-500/5 to-transparent border border-primary/20 flex flex-col md:flex-row items-center justify-between gap-6">
+      <GradientBorderCard
+        gradient="violet"
+        glow="rgba(139,92,246,0.45)"
+        radius={24}
+        thickness={2}
+        innerClassName="p-6 flex flex-col md:flex-row items-center justify-between gap-6"
+      >
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-1 bg-primary/20 text-primary border border-primary/20 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1 bg-primary/20 text-primary border border-primary/20 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider">
             <Sparkles size={10} /> AI Recommendation Match: 96%
           </div>
           <h2 className="text-xl font-bold text-white">Recommended Framework: Case Study Analysis</h2>
@@ -151,24 +162,29 @@ export default function FrameworkEngine() {
           </p>
         </div>
 
-        <div className="flex gap-4 items-center bg-white/5 border border-white/5 p-4 rounded-xl shrink-0 text-center">
-          <div>
-            <span className="text-[10px] uppercase font-bold text-muted-foreground block">Predicted Retention</span>
-            <strong className="text-lg font-extrabold text-success">{currentFramework.retention}</strong>
-          </div>
-          <div className="h-8 w-px bg-white/10" />
-          <div>
-            <span className="text-[10px] uppercase font-bold text-muted-foreground block">Video Duration</span>
-            <strong className="text-lg font-extrabold text-white">{currentFramework.length}</strong>
+        <div className="flex gap-4 items-center shrink-0">
+          <ScoreRing value={96} size={72} label="Match" caption="AI FIT" />
+          <div className="grid grid-cols-2 gap-2.5">
+            <StatTile
+              label="Predicted Retention"
+              value={currentFramework.retention}
+              tone={toneForScore(retNum(currentFramework.retention))}
+              icon={TrendingUp}
+            />
+            <StatTile
+              label="Video Duration"
+              value={currentFramework.length}
+              icon={Clock}
+            />
           </div>
         </div>
-      </div>
+      </GradientBorderCard>
 
       {/* Grid Layout: Left Framework cards, Right Interactive Timeline preview */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Side: Cards */}
         <div className="lg:col-span-7 space-y-4">
-          <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
             <GitFork size={14} /> Available Video Frameworks
           </h3>
 
@@ -179,20 +195,20 @@ export default function FrameworkEngine() {
                 <button
                   key={fw.id}
                   onClick={() => setSelectedId(fw.id)}
-                  className={`p-4 rounded-2xl glass-panel-interactive border text-left flex flex-col justify-between gap-6 h-48 relative ${
+                  className={`p-4 rounded-3xl bg-card shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] border text-left flex flex-col justify-between gap-6 h-48 relative ${
                     isSelected
-                      ? "border-primary bg-primary/10 shadow-[0_0_20px_rgba(139,92,246,0.15)]"
-                      : "border-white/10"
+                      ? "border-primary bg-primary/10"
+                      : "border-white/[0.06]"
                   }`}
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[9px] uppercase font-black text-primary bg-primary/20 px-2 py-0.5 rounded border border-primary/20">
+                      <span className="text-[9px] uppercase font-semibold text-primary bg-primary/20 px-2 py-0.5 rounded border border-primary/20">
                         FW 0{fw.id}
                       </span>
-                      <span className="text-[10px] font-bold text-success flex items-center gap-0.5">
-                        <TrendingUp size={10} /> {fw.retention} Ret.
-                      </span>
+                      <ScoreChip value={retNum(fw.retention)}>
+                        {fw.retention} Ret.
+                      </ScoreChip>
                     </div>
                     <h4 className="text-xs font-bold text-white leading-snug line-clamp-1">{fw.name}</h4>
                     <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed">
@@ -216,13 +232,13 @@ export default function FrameworkEngine() {
 
         {/* Right Side: Flowchart & Decisional Rules */}
         <div className="lg:col-span-5 space-y-6">
-          <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Interactive Retention Flowchart
           </h3>
 
-          <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-6 relative overflow-hidden bg-neutral-950/40">
+          <div className="p-6 rounded-3xl bg-card border border-white/[0.06] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] space-y-6 relative overflow-hidden">
             {/* Background pattern */}
-            <div className="absolute top-[-20%] right-[-20%] w-40 h-40 bg-purple-500/10 rounded-full blur-2xl" />
+            <div className="absolute top-[-20%] right-[-20%] w-40 h-40 bg-primary/[0.05] rounded-full blur-2xl" />
 
             <div className="pb-3 border-b border-white/5">
               <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
@@ -234,19 +250,19 @@ export default function FrameworkEngine() {
             {/* Strategic Details */}
             <div className="grid grid-cols-2 gap-4 text-[11px]">
               <div>
-                <span className="text-[9px] text-muted-foreground uppercase font-black block">Hook style</span>
+                <span className="text-[9px] text-muted-foreground uppercase font-semibold block">Hook style</span>
                 <span className="font-bold text-white">{currentFramework.hookStyle}</span>
               </div>
               <div>
-                <span className="text-[9px] text-muted-foreground uppercase font-black block">CTA Trigger</span>
+                <span className="text-[9px] text-muted-foreground uppercase font-semibold block">CTA Trigger</span>
                 <span className="font-bold text-white">{currentFramework.cta}</span>
               </div>
               <div>
-                <span className="text-[9px] text-muted-foreground uppercase font-black block">Thumbnail Concept</span>
+                <span className="text-[9px] text-muted-foreground uppercase font-semibold block">Thumbnail Concept</span>
                 <span className="font-bold text-white">{currentFramework.thumbnail}</span>
               </div>
               <div>
-                <span className="text-[9px] text-muted-foreground uppercase font-black block">Editing Speed</span>
+                <span className="text-[9px] text-muted-foreground uppercase font-semibold block">Editing Speed</span>
                 <span className="font-bold text-white">{currentFramework.editingStyle}</span>
               </div>
             </div>
@@ -273,7 +289,7 @@ export default function FrameworkEngine() {
             <div className="pt-2">
               <Link
                 href={`/scripts?framework=${currentFramework.id}&topic=AI Business`}
-                className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary-foreground text-black text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(139,92,246,0.2)]"
+                className="w-full py-2.5 rounded-full btn-premium text-white font-semibold text-xs transition flex items-center justify-center gap-1.5"
               >
                 Assemble Script Engine <FileText size={14} />
               </Link>

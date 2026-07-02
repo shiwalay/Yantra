@@ -105,7 +105,7 @@ export default function GrowthCoach() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch flex-1 min-h-0">
         
         {/* Left Side: Chat Workspace */}
-        <div className="lg:col-span-8 flex flex-col justify-between glass-panel border border-white/10 rounded-2xl relative overflow-hidden bg-neutral-950/20">
+        <div className="lg:col-span-8 flex flex-col justify-between bg-card border border-white/[0.06] rounded-3xl relative overflow-hidden shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]">
           
           {/* Header */}
           <div className="p-4 border-b border-white/10 flex justify-between items-center bg-[#0d0d11]/80">
@@ -121,7 +121,7 @@ export default function GrowthCoach() {
 
             {/* Brand Voice Toggle */}
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-muted-foreground text-[10px] uppercase font-black">Brand Voice</span>
+              <span className="text-muted-foreground text-[10px] uppercase font-semibold">Brand Voice</span>
               <select
                 value={brandVoice}
                 onChange={(e) => setBrandVoice(e.target.value)}
@@ -156,7 +156,7 @@ export default function GrowthCoach() {
                     <div className={`p-3 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap ${
                       isCoach 
                         ? "bg-white/5 border border-white/5 text-white" 
-                        : "bg-primary text-black font-semibold"
+                        : "bg-primary text-white font-semibold"
                     }`}>
                       {msg.text}
                     </div>
@@ -206,7 +206,7 @@ export default function GrowthCoach() {
             />
             <button
               onClick={() => handleSend(input)}
-              className="p-2.5 rounded-xl bg-primary hover:bg-primary-foreground text-black transition shadow-[0_0_15px_rgba(139,92,246,0.2)] shrink-0"
+              className="p-2.5 rounded-xl btn-premium text-white font-semibold transition shrink-0"
             >
               <Send size={14} />
             </button>
@@ -215,12 +215,12 @@ export default function GrowthCoach() {
 
         {/* Right Side: Decisions Action panel */}
         <div className="lg:col-span-4 flex flex-col justify-between gap-6">
-          <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Coach Growth Decisions
           </h3>
 
-          <div className="flex-1 p-6 rounded-2xl glass-panel border border-white/10 space-y-5 bg-neutral-950/40 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-xl pointer-events-none" />
+          <div className="flex-1 p-6 rounded-3xl bg-card border border-white/[0.06] space-y-5 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)] relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/[0.05] rounded-full blur-xl pointer-events-none" />
 
             <div className="pb-3 border-b border-white/5">
               <span className="text-[10px] text-yellow-400 font-bold bg-yellow-500/10 px-2 py-0.5 rounded border border-yellow-500/20">
@@ -232,7 +232,7 @@ export default function GrowthCoach() {
             <div className="space-y-4 text-xs">
               {/* Item 1 */}
               <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 space-y-1.5">
-                <span className="text-[9px] uppercase font-black text-amber-400 flex items-center gap-1">
+                <span className="text-[9px] uppercase font-semibold text-amber-400 flex items-center gap-1">
                   <TrendingUp size={10} /> Rename Video
                 </span>
                 <p className="font-bold text-white">Rename "NextJS 16 Production" to "Why 99% of Deployments Fail"</p>
@@ -246,7 +246,7 @@ export default function GrowthCoach() {
 
               {/* Item 2 */}
               <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 space-y-1.5">
-                <span className="text-[9px] uppercase font-black text-red-400 flex items-center gap-1">
+                <span className="text-[9px] uppercase font-semibold text-red-400 flex items-center gap-1">
                   <AlertTriangle size={10} /> Script Adjustment
                 </span>
                 <p className="font-bold text-white">Skip Sign-up walk-throughs</p>
